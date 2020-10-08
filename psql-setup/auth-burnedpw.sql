@@ -1,3 +1,3 @@
 -- 
--- store md5 hashes of each user, UNIQUE(userid, pw_md5)
+-- store md5 hashes of each user, UNIQUE(user_id, pw_md5)
 

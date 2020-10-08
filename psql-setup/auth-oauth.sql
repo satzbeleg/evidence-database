@@ -21,19 +21,19 @@ as ENUM('orcid', 'openid', 'google', 'facebook')
 CREATE TABLE
 IF NOT EXISTS
 auth.oauth (
-    id          bigint GENERATED ALWAYS AS IDENTITY
-  , userid      bigint NOT NULL
+    id          uuid DEFAULT uuid_generate_v4()
+  , user_id     uuid NOT NULL
   , services    auth.service_t NOT NULL
   , token       character(128) NOT NULL
   , CONSTRAINT fk_auth_oauth_1
-      FOREIGN KEY(userid)
-        REFERENCES auth.users(id)
+      FOREIGN KEY(user_id)
+        REFERENCES auth.users(user_id)
         ON DELETE CASCADE
-  , UNIQUE(userid, services)
+  , UNIQUE(user_id, services)
 );
 
 COMMENT ON COLUMN auth.oauth.id IS 'The table ID, do not use it as foreign key in other tables.';
-COMMENT ON COLUMN auth.oauth.userid IS 'The unique UserId from auth.users table.';
+COMMENT ON COLUMN auth.oauth.user_id IS 'The unique UserId from auth.users table.';
 COMMENT ON COLUMN auth.oauth.services IS 'Name of the OAuth service';
 COMMENT ON COLUMN auth.oauth.token IS 'The access token (JWT) fot the OAuth service';
 

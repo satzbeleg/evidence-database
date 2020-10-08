@@ -7,7 +7,7 @@
 CREATE TYPE 
 auth.user_lifecycle_t 
 as ENUM(
-  'userid-created', 
+  'user_id-created', 
   'username-exists', 
   'email-exists', 
   'account-deactivated', 
@@ -23,12 +23,12 @@ as ENUM(
 CREATE TABLE
 IF NOT EXISTS
 auth.users (
-    id          bigint GENERATED ALWAYS AS IDENTITY
+    user_id     uuid DEFAULT uuid_generate_v4()
   , otherinfo   JSONB NOT NULL
-  , status      auth.user_lifecycle_t DEFAULT 'userid-created'
+  , status      auth.user_lifecycle_t DEFAULT 'user_id-created'
   , created_at  timestamp NOT NULL default CURRENT_TIMESTAMP
   , created_by  text NOT NULL default CURRENT_USER
-  , PRIMARY KEY(id)
+  , PRIMARY KEY(user_id)
 );
 
 -- 
@@ -45,7 +45,7 @@ CREATE OR REPLACE FUNCTION auth.abort_user_deletion()
   RETURNS TRIGGER AS
 $$
 BEGIN
-  RAISE EXCEPTION 'Attempt to delete UserID: %', OLD.id;
+  RAISE EXCEPTION 'Attempt to delete UserID: %', OLD.user_id;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -60,4 +60,4 @@ CREATE TRIGGER prevent_user_deletion
 
 -- test it
 SELECT * FROM auth.users;
-DELETE FROM auth.users WHERE id in (SELECT id FROM auth.users LIMIT 1);
+DELETE FROM auth.users WHERE user_id in (SELECT user_id FROM auth.users LIMIT 1);
