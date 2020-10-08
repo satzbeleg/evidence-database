@@ -1,0 +1,33 @@
+version: "3"
+
+networks:
+  evidence-database-network:
+    #external: true
+    driver: bridge
+    #ipam:
+    #  config:
+    #  - subnet: 172.20.0.0/24
+
+services:
+  evidence-database-v1:
+    image: citusdata/citus:9.4-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password1234
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+    - "5432:5432"
+    networks:
+      evidence-database-network:
+        #ipv4_address: 172.20.0.2
+  
+  pgadmin4-tool:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: test@mail.com
+      PGADMIN_DEFAULT_PASSWORD: password1234
+    ports:
+      - "8889:80"
+    networks:
+      evidence-database-network:
+        #ipv4_address: 172.20.0.3
