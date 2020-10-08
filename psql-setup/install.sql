@@ -29,10 +29,10 @@ CREATE SCHEMA IF NOT EXISTS evidence;
 --  1b. Auth with an OAuth server (sse auth.oauth)
 --  2. Proceed with using the UserId (see auth.users.id)
 -- 
-\i auth-users.sql
-\i auth-burnedpw.sql
-\i auth-localpw.sql
-\i auth-oauth.sql
+\i auth/users.sql
+\i auth/burnedpw.sql
+\i auth/localpw.sql
+\i auth/oauth.sql
 
 -- \i evidence-results.sql
 -- \i evidence-scores.sql
