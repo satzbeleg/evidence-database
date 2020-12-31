@@ -8,7 +8,9 @@ services:
       POSTGRES_PASSWORD: password1234
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-    - "55015:5432"
+      - "55015:5432"
+    volumes: 
+      - ./psql-setup/:/docker-entrypoint-initdb.d/
     networks:
       evidence-backend-network:
         ipv4_address: 172.20.253.5

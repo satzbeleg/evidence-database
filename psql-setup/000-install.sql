@@ -20,23 +20,13 @@ CREATE SCHEMA IF NOT EXISTS auth;
 CREATE SCHEMA IF NOT EXISTS evidence;
 
 
--- Type checks
-\i typechecks.sql
-
 -- 
--- Authentication
+-- 01x - Authentication
 --  1a. Look up username/email (see auth.localpw)
 --  1b. Auth with an OAuth server (sse auth.oauth)
 --  2. Proceed with using the UserId (see auth.users.id)
 -- 
-\i auth/users.sql
-\i auth/burnedpw.sql
-\i auth/localpw.sql
-\i auth/oauth.sql
-
--- \i evidence-results.sql
--- \i evidence-scores.sql
 
 -- 
--- Demo data
+-- 02x - Evidence App Data
 -- 
