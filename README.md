@@ -22,17 +22,28 @@ contid=$(docker container ls | grep citus | awk '{print $1}')
 docker inspect ${contid} | grep IPAddress
 ```
 
-4. Logge Dich in die Datenbank ein
+4. Logge Dich vom Host aus in die Datenbank ein
 
 ```bash
-psql --host=127.0.0.1 --port=5432 --username=postgres
+psql --host=127.0.0.1 --port=55015 --username=postgres
 ```
 
 oder lasse das SQL Installationsskript laufen 
 
 ```bash
 cd psql-setup
-psql --host=127.0.0.1 --port=5432 --username=postgres -f install.sql
+psql --host=127.0.0.1 --port=55015 --username=postgres -f install.sql
 cd ..
 ```
 
+## Login via pgAdmin
+pgAdmin ist innerhalb des Docker network `evidence-backend-network` erreichbar.
+
+- Login: 
+    - username: `test@mail.com`
+    - password: `password1234`
+- Database:
+    - host: `172.20.253.5`
+    - post: `5432`
+    - username: `postgres`
+    - password: `password1234`
