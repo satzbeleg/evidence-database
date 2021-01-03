@@ -22,9 +22,8 @@ CREATE SCHEMA IF NOT EXISTS evidence;
 
 -- 
 -- 01x - Authentication
---  1a. Look up username/email (see auth.localpw)
---  1b. Auth with an OAuth server (sse auth.oauth)
---  2. Proceed with using the UserId (see auth.users.id)
+-- \i psql-setup/010-auth-users.sql
+-- \i psql-setup/019-auth-prepopulate.sql
 -- 
 
 -- 

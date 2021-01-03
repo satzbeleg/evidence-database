@@ -1,6 +1,13 @@
 -- 
--- (DRAFT!)
 -- Table with UserIDs
+-- 
+-- Requirements:
+-- -------------
+--    - We only need a very basic version. For the FastAPI we need 
+--        a SQL function `auth.validate_user(username, plainpw)` 
+--        that returns bool.
+--    - In the `evidence.???` Database we will use the unique immutable 
+--        username.
 -- 
 -- Overview:
 -- ---------
@@ -35,22 +42,6 @@ CREATE DOMAIN auth.username_t AS citext
   CHECK ( value ~ '^[a-z][a-z0-9]+$' )
 ;
 
-
--- 
--- auth.user_lifecycle_t (type check)
--- Sign Up Stages
--- 
-DROP TYPE IF EXISTS auth.user_lifecycle_t
-;
-CREATE TYPE auth.user_lifecycle_t as ENUM(
-  'created',  -- user_id created
-  'deactivated',  -- Account is deactivated but all data still exists
-  'reactivated', -- Account is reactivated
-  'requested',  -- User request a full deletion of all data
-  'deleted'  -- All data related to the user_id are deleted. The auth.users row still exist
-);
-
-
 -- -----------------------------------------------------------------------
 -- (B) TABLE auth.users
 -- -----------------------------------------------------------------------
@@ -68,8 +59,10 @@ auth.users (
   , created_by     text NOT NULL default CURRENT_USER
   -- immutable fields
   , username       auth.username_t NOT NULL
-  -- might change over the lifetime of an user
-  , account_state  auth.user_lifecycle_t DEFAULT 'created'
+  -- mutable fields
+  , hashed_password   bytea NOT NULL
+  -- automatic mutable fields
+  , isactive       boolean default TRUE
   , PRIMARY KEY(user_id)
   , UNIQUE(username)
 );
@@ -86,10 +79,9 @@ COMMENT ON COLUMN auth.users.created_by
 COMMENT ON COLUMN auth.users.username
   IS 'The unique immutable username for authentification purposes. It is not possible to change the username lateron. '
 ;
-COMMENT ON COLUMN auth.users.account_state
-  IS 'Account state. a) The user "created" the account. b) The account was "deactivated", e.g. by the user, or by the sysadmin due to inactivity. c) The user "reactivated" the account what is only possible with a valid `auth.localpw.recovery_email`. d) The user "requested" the deletion of the account, e.g. it will executed after a certain waiting period. e) The account was finally "deleted" and is unrecoverable.'
-;
 
+COMMENT ON COLUMN auth.localpw.hashed_password 
+  IS 'SHA-512 has of the password string. The blank password is never stored.';
 
 
 
@@ -181,37 +173,36 @@ CREATE TRIGGER trg_prevent_update_username
 
 -- -----------------------------------------------------------------------
 -- (D) FUNCTIONS for auth.users
---    - Check if desired username is valid (auth.is_valid_username)
---    - Add new user (auth.add_new_user)
---    - Change account state ()
+--    - Add new user (auth.add_user)
+--    - Validate user account (auth.validate_user)
+--    - Check if username is active (auth.is_active_user)
+--    - Get user_id of username (auth.username_to_userid)
 -- -----------------------------------------------------------------------
 
 
 -- 
--- Check if a username is availabe (returns: bool)
+-- Add a new user (returns: uuid)
 -- 
 -- USAGE:
---    SELECT auth.is_available_username('newusername');
+--    SELECT auth.add_user('newusername', 'secretpw');
 -- 
 -- RETURN
---    bool  True if the desired username is valid, and False if not.
+--    uuid  The unique user_id
 -- 
-DROP FUNCTION IF EXISTS auth.is_available_username
+DROP FUNCTION IF EXISTS auth.add_user
 ;
-CREATE OR REPLACE FUNCTION auth.is_available_username(desiredname text)
-  RETURNS bool AS
+CREATE OR REPLACE FUNCTION auth.add_user(
+    desiredname auth.username_t, plainpassword text)
+  RETURNS uuid AS
 $$
+DECLARE
+  newuser_id uuid;
 BEGIN
-  -- username is not written correctly
-  IF NOT (desiredname ~ '^[a-z][a-z0-9]+$') THEN
-    RETURN FALSE;
-  END IF;
-  -- username already exists
-  IF (SELECT COUNT(user_id) FROM auth.users WHERE username=desiredname) > 0 THEN
-    RETURN FALSE;
-  END IF;
-  -- everything ok
-  RETURN TRUE;
+  INSERT INTO auth.users(username, hashed_password) VALUES (
+    desiredname::auth.username_t, sha512(plainpassword::bytea))
+  RETURNING user_id INTO newuser_id
+  ;
+  RETURN newuser_id;
 END;
 $$ 
 LANGUAGE plpgsql
@@ -219,27 +210,52 @@ LANGUAGE plpgsql
 
 
 -- 
--- Add a new user (returns: bool)
+-- Validate user account (returns: bool)
 -- 
 -- USAGE:
---    SELECT auth.add_new_user('newusername');
+--    SELECT auth.validate_user('newusername', 'secretpw');
 -- 
 -- RETURN
---    bool  True if it worked, and False if it failed.
+--    bool  True if username/password exists
 -- 
-DROP FUNCTION IF EXISTS auth.add_new_user
+DROP FUNCTION IF EXISTS auth.validate_user
 ;
-CREATE OR REPLACE FUNCTION auth.add_new_user(desiredname text)
+CREATE OR REPLACE FUNCTION auth.validate_user(
+    theusername auth.username_t, plainpassword text)
   RETURNS bool AS
 $$
 BEGIN
-  -- check if desired username is valid
-  IF auth.is_available_username(desiredname) THEN
-    INSERT INTO auth.users(username) VALUES (desiredname::auth.username_t);
+  IF (SELECT COUNT(user_id) FROM auth.users 
+      WHERE username=theusername 
+        AND hashed_password=sha512(plainpassword::bytea)
+     ) = 1 
+  THEN
     RETURN TRUE;
   ELSE
     RETURN FALSE;
   END IF;
+END;
+$$ 
+LANGUAGE plpgsql
+;
+
+
+-- 
+-- Check if username is active (returns: bool)
+-- 
+-- USAGE:
+--    SELECT auth.is_active_user('newusername');
+-- 
+-- RETURN
+--    bool  True if it worked, and False if it failed.
+-- 
+DROP FUNCTION IF EXISTS auth.is_active_user
+;
+CREATE OR REPLACE FUNCTION auth.is_active_user(theusername auth.username_t)
+  RETURNS bool AS
+$$
+BEGIN
+  RETURN (SELECT isactive FROM auth.users WHERE username = theusername);
 END;
 $$ 
 LANGUAGE plpgsql
@@ -257,87 +273,12 @@ LANGUAGE plpgsql
 -- 
 DROP FUNCTION IF EXISTS auth.username_to_userid
 ;
-CREATE OR REPLACE FUNCTION auth.username_to_userid(myname text)
+CREATE OR REPLACE FUNCTION auth.username_to_userid(theusername auth.username_t)
   RETURNS uuid AS
 $$
 BEGIN
-  RETURN (SELECT user_id FROM auth.users WHERE username = myname);
+  RETURN (SELECT user_id FROM auth.users WHERE username = theusername);
 END;
 $$ 
 LANGUAGE plpgsql
 ;
-
-
--- 
--- Check if username is active (returns: bool)
--- 
--- USAGE:
---    SELECT auth.is_active_username('newusername');
--- 
--- RETURN
---    bool  True if it worked, and False if it failed.
--- 
-DROP FUNCTION IF EXISTS auth.is_active_username
-;
-CREATE OR REPLACE FUNCTION auth.is_active_username(myname text)
-  RETURNS bool AS
-$$
-BEGIN
-  RETURN (SELECT account_state IN ('created', 'reactivated')
-          FROM auth.users WHERE username = myname);
-END;
-$$ 
-LANGUAGE plpgsql
-;
-
-
--- deactivate account, reactivate account, request deletion
--- Returns True if successful
-DROP FUNCTION IF EXISTS auth.deactivate_account
-;
-CREATE OR REPLACE FUNCTION auth.deactivate_account(theusername text)
-  RETURNS bool AS
-$$
-BEGIN
-  UPDATE auth.users
-  SET account_state = 'deactivated'
-  WHERE username = theusername
-  ;
-  RETURN FOUND;
-END;
-$$ 
-LANGUAGE plpgsql
-;
-
-DROP FUNCTION IF EXISTS auth.reactivate_account
-;
-CREATE OR REPLACE FUNCTION auth.reactivate_account(theusername text)
-  RETURNS bool AS
-$$
-BEGIN
-  UPDATE auth.users
-  SET account_state = 'reactivated'
-  WHERE username = theusername
-  ;
-  RETURN FOUND;
-END;
-$$ 
-LANGUAGE plpgsql
-;
-
-DROP FUNCTION IF EXISTS auth.request_deletion
-;
-CREATE OR REPLACE FUNCTION auth.request_deletion(theusername text)
-  RETURNS bool AS
-$$
-BEGIN
-  UPDATE auth.users
-  SET account_state = 'requested'
-  WHERE username = theusername
-  ;
-  RETURN FOUND;
-END;
-$$ 
-LANGUAGE plpgsql
-;
-

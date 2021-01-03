@@ -36,6 +36,14 @@ psql --host=127.0.0.1 --port=55015 --username=postgres -f install.sql
 cd ..
 ```
 
+## User Management
+Im Schema `auth.` wurde eine rudimentäre passwort-basierte Authentifizierung mit den folgenden Befehlen implementiert.
+
+- Neuen Account manuell erstellen: `SELECT auth.add_user('newusername', 'secretpw');`  
+- Account valideren: `SELECT auth.validate_user('newusername', 'secretpw');` (True wenn Login korrekt; In FastAPI kann der Login dann abbrechen, wenn False)
+- Status des Accounts abfragen: `SELECT auth.is_active_user('newusername');` (True wenn aktiv; In FastAPI kann der Login dann abbrechen, wenn False)
+
+
 ## Login via pgAdmin
 pgAdmin ist innerhalb des Docker network `evidence-backend-network` erreichbar.
 
