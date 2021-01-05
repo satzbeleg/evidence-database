@@ -35,9 +35,9 @@
 -- 
 -- BEHAVIOR
 --    SELECT 'Capital'::auth.username_t = 'capital'::auth.username_t; -- True
---  
-DROP DOMAIN IF EXISTS auth.username_t
-;
+-- 
+
+-- DROP DOMAIN IF EXISTS auth.username_t;
 CREATE DOMAIN auth.username_t AS citext
   CHECK ( value ~ '^[a-z][a-z0-9]+$' )
 ;
@@ -80,7 +80,7 @@ COMMENT ON COLUMN auth.users.username
   IS 'The unique immutable username for authentification purposes. It is not possible to change the username lateron. '
 ;
 
-COMMENT ON COLUMN auth.localpw.hashed_password 
+COMMENT ON COLUMN auth.users.hashed_password 
   IS 'SHA-512 has of the password string. The blank password is never stored.';
 
 
@@ -115,8 +115,7 @@ LANGUAGE plpgsql
 -- - it's not allowed to delete Users at all
 -- - please change the auth.users.account_state field instead
 -- 
-DROP TRIGGER IF EXISTS trg_prevent_deletion ON auth.users
-;
+-- DROP TRIGGER IF EXISTS trg_prevent_deletion ON auth.users;
 CREATE TRIGGER trg_prevent_deletion
   BEFORE DELETE 
     ON auth.users 
@@ -130,8 +129,8 @@ CREATE TRIGGER trg_prevent_deletion
 -- Prevent UPDATE on user_id, created_at, created_by, username
 -- - these fields are immutable
 -- 
-DROP TRIGGER IF EXISTS trg_prevent_update_user_id ON auth.users
-;
+
+-- DROP TRIGGER IF EXISTS trg_prevent_update_user_id ON auth.users;
 CREATE TRIGGER trg_prevent_update_user_id
   BEFORE UPDATE 
     OF user_id ON auth.users
@@ -140,8 +139,7 @@ CREATE TRIGGER trg_prevent_update_user_id
       'UPDATE of auth.users.user_id is forbidden.')
 ;
 
-DROP TRIGGER IF EXISTS trg_prevent_update_created_at ON auth.users
-;
+-- DROP TRIGGER IF EXISTS trg_prevent_update_created_at ON auth.users;
 CREATE TRIGGER trg_prevent_update_created_at
   BEFORE UPDATE 
     OF created_at ON auth.users
@@ -150,8 +148,7 @@ CREATE TRIGGER trg_prevent_update_created_at
       'UPDATE of auth.users.created_at is forbidden.')
 ;
 
-DROP TRIGGER IF EXISTS trg_prevent_update_created_by ON auth.users
-;
+-- DROP TRIGGER IF EXISTS trg_prevent_update_created_by ON auth.users;
 CREATE TRIGGER trg_prevent_update_created_by
   BEFORE UPDATE 
     OF created_by ON auth.users
@@ -160,8 +157,7 @@ CREATE TRIGGER trg_prevent_update_created_by
       'UPDATE of auth.users.created_by is forbidden.')
 ;
 
-DROP TRIGGER IF EXISTS trg_prevent_update_username ON auth.users
-;
+-- DROP TRIGGER IF EXISTS trg_prevent_update_username ON auth.users;
 CREATE TRIGGER trg_prevent_update_username
   BEFORE UPDATE 
     OF username ON auth.users
@@ -189,8 +185,7 @@ CREATE TRIGGER trg_prevent_update_username
 -- RETURN
 --    uuid  The unique user_id
 -- 
-DROP FUNCTION IF EXISTS auth.add_user
-;
+-- DROP FUNCTION IF EXISTS auth.add_user;
 CREATE OR REPLACE FUNCTION auth.add_user(
     desiredname auth.username_t, plainpassword text)
   RETURNS uuid AS
@@ -218,8 +213,7 @@ LANGUAGE plpgsql
 -- RETURN
 --    bool  True if username/password exists
 -- 
-DROP FUNCTION IF EXISTS auth.validate_user
-;
+-- DROP FUNCTION IF EXISTS auth.validate_user;
 CREATE OR REPLACE FUNCTION auth.validate_user(
     theusername auth.username_t, plainpassword text)
   RETURNS bool AS
@@ -249,8 +243,7 @@ LANGUAGE plpgsql
 -- RETURN
 --    bool  True if it worked, and False if it failed.
 -- 
-DROP FUNCTION IF EXISTS auth.is_active_user
-;
+-- DROP FUNCTION IF EXISTS auth.is_active_user;
 CREATE OR REPLACE FUNCTION auth.is_active_user(theusername auth.username_t)
   RETURNS bool AS
 $$
@@ -271,8 +264,7 @@ LANGUAGE plpgsql
 -- RETURN
 --    uuid  The unique UserId
 -- 
-DROP FUNCTION IF EXISTS auth.username_to_userid
-;
+-- DROP FUNCTION IF EXISTS auth.username_to_userid;
 CREATE OR REPLACE FUNCTION auth.username_to_userid(theusername auth.username_t)
   RETURNS uuid AS
 $$
