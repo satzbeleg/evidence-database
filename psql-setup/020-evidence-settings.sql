@@ -21,19 +21,22 @@ COMMENT ON COLUMN evidence.user_settings.settings IS
 -- 
 -- Upsert function
 -- 
+-- EXAMPLE:
+-- --------
+--    SELECT evidence.upsert_user_settings('testuser2', '{"hello": "world1"}'::jsonb);
+--    SELECT settings->'hello' FROM evidence.user_settings;
+-- 
 CREATE OR REPLACE FUNCTION evidence.upsert_user_settings(
-    theusername text, thesettings JSON)
+    theusername text, thesettings jsonb)
   RETURNS bool AS
 $$
 BEGIN
   -- try to insert new row
   INSERT INTO evidence.user_settings (username, settings) 
-       VALUES (theusername, thesettings)
-  ON CONFLICT (username) DO 
+       VALUES (theusername::text, thesettings::jsonb)
   -- update if error occured
-  UPDATE evidence.user_settings
-     SET settings = thesettings
-   WHERE username = theusername
+  ON CONFLICT (username) 
+  DO UPDATE SET settings = thesettings::jsonb
   ;
   RETURN TRUE;
 END;
