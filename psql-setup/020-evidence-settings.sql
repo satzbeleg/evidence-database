@@ -25,20 +25,24 @@ COMMENT ON COLUMN evidence.user_settings.settings IS
 -- --------
 --    SELECT evidence.upsert_user_settings('testuser2', '{"hello": "world1"}'::jsonb);
 --    SELECT settings->'hello' FROM evidence.user_settings;
+--    SELECT * FROM evidence.user_settings;
 -- 
+-- DROP FUNCTION evidence.upsert_user_settings(text,jsonb);
 CREATE OR REPLACE FUNCTION evidence.upsert_user_settings(
     theusername text, thesettings jsonb)
-  RETURNS bool AS
+  RETURNS uuid AS
 $$
+DECLARE
+  the_row_id uuid;
 BEGIN
   -- try to insert new row
   INSERT INTO evidence.user_settings (username, settings) 
        VALUES (theusername::text, thesettings::jsonb)
-  -- update if error occured
   ON CONFLICT (username) 
-  DO UPDATE SET settings = thesettings::jsonb
+  DO UPDATE SET settings = EXCLUDED.settings
+  RETURNING row_id INTO the_row_id
   ;
-  RETURN TRUE;
+  RETURN the_row_id;
 END;
 $$ 
 LANGUAGE plpgsql
