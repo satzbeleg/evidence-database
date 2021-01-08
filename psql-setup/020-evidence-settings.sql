@@ -39,7 +39,7 @@ BEGIN
   INSERT INTO evidence.user_settings (username, settings) 
        VALUES (theusername::text, thesettings::jsonb)
   ON CONFLICT (username) 
-  DO UPDATE SET settings = EXCLUDED.settings
+  DO UPDATE SET settings = user_settings.settings || EXCLUDED.settings
   RETURNING row_id INTO the_row_id
   ;
   RETURN the_row_id;
