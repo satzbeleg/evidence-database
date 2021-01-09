@@ -17,10 +17,11 @@ evidence.example_items (
     item_id     uuid DEFAULT uuid_generate_v4()
   , sentence_id uuid NOT NULL
   , lemma       citext NOT NULL
+  , context     jsonb NOT NULL
   , score       double precision DEFAULT NULL
   , PRIMARY KEY(item_id)
   , CONSTRAINT uk_example_items_1 
-      UNIQUE(sentence_id, lemma)
+      UNIQUE(sentence_id, lemma, context)
 );
 
 -- 
@@ -45,18 +46,19 @@ evidence.score_history (
 -- ADD LEMMA
 -- - associate a lemma/keyword with a sentence_id
 -- 
--- DROP FUNCTION IF EXISTS evidence.add_lemma;
-CREATE OR REPLACE FUNCTION evidence.add_lemma(
+-- DROP FUNCTION IF EXISTS evidence.upsert_example_item;
+CREATE OR REPLACE FUNCTION evidence.upsert_example_item(
     sentence_id uuid, 
-    lemma citext
+    lemma citext,
+    context jsonb
   )
   RETURNS uuid AS
 $$
 DECLARE
   new_item_id uuid;
 BEGIN
-  INSERT INTO evidence.example_items(sentence_id, lemma) 
-       VALUES (sentence_id::uuid, lemma::citext)
+  INSERT INTO evidence.example_items(sentence_id, lemma, context) 
+       VALUES (sentence_id::uuid, lemma::citext, context::jsonb)
   ON CONFLICT DO NOTHING
   RETURNING item_id INTO new_item_id
   ;
@@ -72,12 +74,13 @@ LANGUAGE plpgsql
 -- 
 -- Example:
 -- -------
---    SELECT evidence.add_scored_sentence('kdsajfkl', 'Hausschild', 0.777, '{}'::jsonb)
+--    SELECT evidence.upsert_scored_example_item('kdsajfkl', 'Hausschild', '{}'::jsonb, 0.777, '{}'::jsonb)
 -- 
--- DROP FUNCTION IF EXISTS evidence.add_scored_sentence;
-CREATE OR REPLACE FUNCTION evidence.add_scored_sentence(
+-- DROP FUNCTION IF EXISTS evidence.upsert_scored_example_item;
+CREATE OR REPLACE FUNCTION evidence.upsert_scored_example_item(
     sentence_id uuid, 
     lemma citext, 
+    context jsonb,
     score double precision, 
     model_info jsonb
   )
@@ -87,8 +90,8 @@ DECLARE
   new_item_id uuid;
 BEGIN
   -- upsert 
-  INSERT INTO evidence.example_items(sentence_id, lemma, score) 
-       VALUES (sentence_id::uuid, lemma::citext, score::double precision)
+  INSERT INTO evidence.example_items(sentence_id, lemma, context, score) 
+       VALUES (sentence_id::uuid, lemma::citext, context::jsonb, score::double precision)
   ON CONFLICT ON CONSTRAINT uk_example_items_1 DO 
        UPDATE SET score = EXCLUDED.score
   RETURNING item_id INTO new_item_id
