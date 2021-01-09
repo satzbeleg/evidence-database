@@ -40,16 +40,6 @@ evidence.score_history (
       REFERENCES evidence.example_items(item_id) ON DELETE CASCADE
 );
 
--- 
--- Buffer/Cache with raw sentences
--- 
-CREATE TABLE IF NOT EXISTS 
-evidence.sentences_cache (
-    sentence_id     uuid NOT NULL
-  , sentence_text   text NOT NULL
-  , PRIMARY KEY(sentence_id)
-);
-
 
 -- 
 -- ADD LEMMA
