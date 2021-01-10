@@ -74,7 +74,8 @@ LANGUAGE plpgsql
 -- 
 -- Example:
 -- -------
---    SELECT evidence.upsert_scored_example_item('kdsajfkl', 'Hausschild', '{}'::jsonb, 0.777, '{}'::jsonb)
+--    SELECT evidence.upsert_scored_example_item(
+--      'kdsajfkl', 'Hausschild', '{}'::jsonb, 0.777, '{}'::jsonb)
 -- 
 -- DROP FUNCTION IF EXISTS evidence.upsert_scored_example_item;
 CREATE OR REPLACE FUNCTION evidence.upsert_scored_example_item(
