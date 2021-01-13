@@ -21,7 +21,8 @@
 -- (A) REQUIRED TYPES
 -- -----------------------------------------------------------------------
 
---  n.a.
+-- n.a.
+
 
 
 -- -----------------------------------------------------------------------
@@ -77,6 +78,8 @@ evidence.score_history (
 -- (D) FUNCTIONS 
 --  - upsert a new tuple[lemma, sentId, ctx] (evidence.upsert_example_item)
 --  - upsert an example item with score (evidence.upsert_scored_example_item)
+--  - Utility function: Add wildcards to each text array element (evidence.add_wildcards_to_text_array_element)
+--  - Query by lemmata for random sampling (evidence.query_by_lemmata)
 -- -----------------------------------------------------------------------
 
 -- 
@@ -153,9 +156,77 @@ LANGUAGE plpgsql
 
 
 -- 
--- sentence as text
--- lemma as text
--- score as double
+-- UTILITY FUNCTION TO ADD SQL WILDCARDS
+-- - Add wildcards to each text array element
 -- 
+-- EXAMPLE
+-- -------
+--    SELECT evidence.add_wildcard_to_text_array_element('{"hello", "world"}');
+-- 
+-- DROP FUNCTION IF EXISTS evidence.add_wildcards_to_text_array_element;
+CREATE OR REPLACE FUNCTION evidence.add_wildcards_to_text_array_element(arr text[])
+  RETURNS text[] AS
+$$
+BEGIN
+  RETURN (select array_agg(tbWild.key)::text[] 
+            from (select '%' || unnest(arr::text[]) || '%' as "key") tbWild);
+END;
+$$ 
+LANGUAGE plpgsql
+;
 
 
+
+-- 
+-- Query by lemmata for random sampling (pl.)
+-- 
+-- EXAMPLE
+-- -------
+--    SELECT * FROM evidence.query_by_lemmata('{impeachment,Nixon}'::text[], NULL, NULL);
+--    SELECT * FROM evidence.query_by_lemmata('{impeachment}'::text[], NULL, NULL);
+--    SELECT * FROM evidence.query_by_lemmata('{impeachment}'::text[], 5, 3);
+--    SELECT * FROM evidence.query_by_lemmata('{impeachment}'::text[], 5, 3) ORDER BY RANDOM() LIMIT 4;
+-- 
+-- DROP FUNCTION IF EXISTS evidence.query_by_lemmata;
+CREATE OR REPLACE FUNCTION evidence.query_by_lemmata(
+    searchlemmata text[],
+    n_examples int,
+    n_start_index int
+  )
+  RETURNS TABLE (
+    sentence_id uuid,
+    lemmata citext[],
+    context jsonb,
+    score double precision
+  ) AS
+$$
+BEGIN
+  RETURN QUERY 
+    SELECT tb2.sentence_id
+         , tb2.lemmata
+         , tb2.context[1]
+         , tb2.score
+    FROM (
+        SELECT tb1.sentence_id
+            , ARRAY_AGG(tb1.lemma) as "lemmata"
+            , ARRAY_AGG(tb1.context) as "context"
+            , AVG(tb1.score) as "score"
+            , COUNT(tb1.sentence_id) as "count"
+        FROM (
+            SELECT tb0.sentence_id , tb0.context, tb0.lemma, tb0.score
+            FROM evidence.example_items tb0
+            WHERE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
+                searchlemmata::citext[]))
+            ORDER BY tb0.sentence_id, tb0.lemma
+        ) tb1
+        GROUP BY tb1.sentence_id
+    ) tb2
+    WHERE tb2.count = array_length(searchlemmata::text[], 1)
+    ORDER BY tb2.score DESC
+    LIMIT n_examples 
+    OFFSET n_start_index
+    ;
+END;
+$$ 
+LANGUAGE plpgsql
+;

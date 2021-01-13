@@ -1,20 +1,29 @@
 
 -- 
--- WITHOUT LOCAL TEXT BUFFFER
--- - it's assumed that the SentenceStore database exists.
--- - only the `sentence_id` from the SentenceStore is saved in 
---      in `evidence.example_items`
--- - it's assumed that an REST API would connect to the SentenceStore API
---      to read the `sentence_text` associated with the `sentence_id`
+-- Sample random examples
+-- - see `evidence.query_by_lemmata`
 -- 
-
-
--- 
--- WITH LOCAL TEXT BUFFER
--- - add `sentence_text` along with an example item
--- - this table has it's seperate dummy API(!)
--- - the text data is combined lateron inside the API(!)
--- 
+SELECT tb2.sentence_id, tb2.lemmata, tb2.context[1], tb2.score, tb2.count
+     -- , evidence.get_sentence_text(tb2.sentence_id) as "sentence_text"
+FROM (
+    SELECT tb1.sentence_id
+        , ARRAY_AGG(tb1.lemma) as "lemmata"
+        , ARRAY_AGG(tb1.context) as "context"
+        , AVG(score) as "score"
+        , COUNT(tb1.sentence_id) as "count"
+    FROM (
+        SELECT sentence_id , context, lemma, score
+        FROM evidence.example_items tb0
+        WHERE lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
+            '{impeachment,Nixon}'::text[]))
+        ORDER BY tb0.sentence_id, tb0.lemma
+    ) tb1
+    GROUP BY tb1.sentence_id
+) tb2
+WHERE tb2.count = array_length('{impeachment,Nixon}'::text[], 1)
+ORDER BY tb2.score DESC
+LIMIT NULL OFFSET 1
+;
 
 
 -- 
