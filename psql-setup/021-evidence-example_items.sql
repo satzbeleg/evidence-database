@@ -186,6 +186,7 @@ LANGUAGE plpgsql
 --    SELECT * FROM evidence.query_by_lemmata('{impeachment}'::text[], NULL, NULL);
 --    SELECT * FROM evidence.query_by_lemmata('{impeachment}'::text[], 5, 3);
 --    SELECT * FROM evidence.query_by_lemmata('{impeachment}'::text[], 5, 3) ORDER BY RANDOM() LIMIT 4;
+--    SELECT * FROM evidence.query_by_lemmata('{}'::text[], 5, 3);
 -- 
 -- DROP FUNCTION IF EXISTS evidence.query_by_lemmata;
 CREATE OR REPLACE FUNCTION evidence.query_by_lemmata(
@@ -215,13 +216,21 @@ BEGIN
         FROM (
             SELECT tb0.sentence_id , tb0.context, tb0.lemma, tb0.score
             FROM evidence.example_items tb0
-            WHERE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
-                searchlemmata::citext[]))
+            WHERE (
+              CASE
+                WHEN array_length(searchlemmata::text[], 1) IS NULL THEN true
+                ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
+                        searchlemmata::citext[]))
+              END)
             ORDER BY tb0.sentence_id, tb0.lemma
         ) tb1
         GROUP BY tb1.sentence_id
     ) tb2
-    WHERE tb2.count = array_length(searchlemmata::text[], 1)
+    WHERE (
+      CASE
+        WHEN array_length(searchlemmata::text[], 1) IS NULL THEN true
+        ELSE tb2.count = array_length(searchlemmata::text[], 1)
+      END)
     ORDER BY tb2.score DESC
     LIMIT n_examples 
     OFFSET n_start_index

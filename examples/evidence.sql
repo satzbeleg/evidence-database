@@ -14,16 +14,57 @@ FROM (
     FROM (
         SELECT sentence_id , context, lemma, score
         FROM evidence.example_items tb0
-        WHERE lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
-            '{impeachment,Nixon}'::text[]))
+        WHERE (
+            CASE
+                WHEN array_length('{impeachment,Nixon}'::text[], 1) IS NULL THEN true
+                ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
+                    '{impeachment,Nixon}'::citext[]))
+            END)
         ORDER BY tb0.sentence_id, tb0.lemma
     ) tb1
     GROUP BY tb1.sentence_id
 ) tb2
-WHERE tb2.count = array_length('{impeachment,Nixon}'::text[], 1)
+WHERE (
+    CASE
+        WHEN array_length('{impeachment,Nixon}'::text[], 1) IS NULL THEN true
+        ELSE tb2.count = array_length('{impeachment,Nixon}'::text[], 1)
+    END)
 ORDER BY tb2.score DESC
 LIMIT NULL OFFSET 1
 ;
+
+
+-- test if no specific lemmata were requested
+SELECT tb2.sentence_id, tb2.lemmata, tb2.context[1], tb2.score, tb2.count
+     -- , evidence.get_sentence_text(tb2.sentence_id) as "sentence_text"
+FROM (
+    SELECT tb1.sentence_id
+        , ARRAY_AGG(tb1.lemma) as "lemmata"
+        , ARRAY_AGG(tb1.context) as "context"
+        , AVG(score) as "score"
+        , COUNT(tb1.sentence_id) as "count"
+    FROM (
+        SELECT sentence_id , context, lemma, score
+        FROM evidence.example_items tb0
+        WHERE (
+            CASE
+                WHEN array_length('{}'::text[], 1) IS NULL THEN true
+                ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
+                    '{}'::citext[]))
+            END)
+        ORDER BY tb0.sentence_id, tb0.lemma
+    ) tb1
+    GROUP BY tb1.sentence_id
+) tb2
+WHERE (
+    CASE
+        WHEN array_length('{}'::text[], 1) IS NULL THEN true
+        ELSE tb2.count = array_length('{}'::text[], 1) 
+    END)
+ORDER BY tb2.score DESC
+LIMIT NULL OFFSET 1
+;
+
 
 
 -- 
