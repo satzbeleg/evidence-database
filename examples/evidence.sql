@@ -114,3 +114,16 @@ SELECT set_id, event_history, unnest(lemmata)
  WHERE  'lemma1' = ANY(lemmata)
 ;
 
+-- 
+-- Stats lemma
+-- 
+SELECT lemma
+     , count(sentence_id) as "num_sents"
+  FROM evidence.example_items
+GROUP BY lemma
+LIMIT 100
+; 
+
+
+-- lösche lemma mit Zahlen
+delete from evidence.example_items where lemma ~ '^[0-9\.]+$';

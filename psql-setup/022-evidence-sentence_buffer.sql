@@ -35,6 +35,11 @@ evidence.sentences_cache (
   , PRIMARY KEY(sentence_id)
 );
 
+-- search by: (sentence_id), sentence_text
+CREATE INDEX CONCURRENTLY "gist_sentences_cache_1" 
+  ON evidence.sentences_cache USING GIST (sentence_text)
+;
+
 
 
 -- -----------------------------------------------------------------------
