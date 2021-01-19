@@ -242,8 +242,9 @@ BEGIN
             WHERE (
               CASE
                 WHEN array_length(searchlemmata::text[], 1) IS NULL THEN true
-                ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
-                        searchlemmata::citext[]))
+                ELSE tb0.lemma = ANY(searchlemmata::citext[])
+                -- ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
+                --         searchlemmata::citext[]))
               END)
             ORDER BY tb0.sentence_id, tb0.lemma
         ) tb1
