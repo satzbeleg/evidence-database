@@ -32,12 +32,16 @@ CREATE TABLE IF NOT EXISTS
 evidence.sentences_cache (
     sentence_id     uuid NOT NULL
   , sentence_text   text NOT NULL
+  , annotation      jsonb DEFAULT NULL
   , PRIMARY KEY(sentence_id)
 );
 
 -- search by: (sentence_id), sentence_text
 CREATE INDEX CONCURRENTLY "gist_sentences_cache_1" 
   ON evidence.sentences_cache USING GIST (sentence_text)
+;
+CREATE INDEX CONCURRENTLY "gin_sentences_cache_2" 
+  ON evidence.sentences_cache USING GIN (annotation)
 ;
 
 
