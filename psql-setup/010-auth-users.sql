@@ -38,7 +38,7 @@
 -- 
 
 -- DROP DOMAIN IF EXISTS auth.username_t;
-CREATE DOMAIN auth.username_t AS citext
+CREATE DOMAIN auth.username_t AS text
   CHECK ( value ~ '^[a-z][a-z0-9]+$' )
 ;
 
@@ -69,7 +69,13 @@ auth.users (
 -- keys
 CREATE UNIQUE INDEX CONCURRENTLY "uk_users_1" 
   ON auth.users USING BTREE (username)
-;
+; -- for "="
+
+-- search by
+CREATE INDEX CONCURRENTLY "bt_users_2" 
+  ON auth.users USING BTREE (hashed_password)
+; -- for "="
+
 
 -- Kommentare
 COMMENT ON COLUMN auth.users.user_id IS 

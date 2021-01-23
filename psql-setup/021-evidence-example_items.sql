@@ -36,7 +36,7 @@ evidence.example_items (
     item_id     uuid DEFAULT uuid_generate_v4()
   -- immutable fields (data for unique key)
   , sentence_id uuid NOT NULL
-  , lemma       citext NOT NULL
+  , lemma       text NOT NULL
   , context     jsonb NOT NULL
   -- mutable fields
   , score       evidence.score_t DEFAULT NULL
@@ -51,16 +51,18 @@ CREATE UNIQUE INDEX CONCURRENTLY "uk_example_items_1"
 -- search by: sentence_id, lemma, context
 CREATE INDEX CONCURRENTLY "bt_example_items_2" 
   ON evidence.example_items USING BTREE (sentence_id)
-;
+; -- for "="
+
 CREATE INDEX CONCURRENTLY "bt_example_items_3" 
   ON evidence.example_items USING BTREE (lemma)
-;
+; -- for "="
+
 CREATE INDEX CONCURRENTLY "gin_example_items_4" 
   ON evidence.example_items USING GIN (context)
 ;
 
 
--- comments
+-- Kommentare
 -- internal ID
 -- sentID=internal ID Default NULL
 -- sentence text
@@ -117,7 +119,7 @@ CREATE UNIQUE INDEX CONCURRENTLY "uk_score_history_1"
 -- DROP FUNCTION IF EXISTS evidence.upsert_example_item;
 CREATE OR REPLACE FUNCTION evidence.upsert_example_item(
     sentence_id uuid, 
-    lemma citext,
+    lemma text,
     context jsonb
   )
   RETURNS uuid AS
@@ -126,7 +128,7 @@ DECLARE
   new_item_id uuid;
 BEGIN
   INSERT INTO evidence.example_items(sentence_id, lemma, context) 
-       VALUES (sentence_id::uuid, lemma::citext, context::jsonb)
+       VALUES (sentence_id::uuid, lemma::text, context::jsonb)
   ON CONFLICT DO NOTHING
   RETURNING item_id INTO new_item_id
   ;
@@ -150,7 +152,7 @@ LANGUAGE plpgsql
 -- DROP FUNCTION IF EXISTS evidence.upsert_scored_example_item;
 CREATE OR REPLACE FUNCTION evidence.upsert_scored_example_item(
     sentence_id uuid, 
-    lemma citext, 
+    lemma text, 
     context jsonb,
     score double precision, 
     model_info jsonb
@@ -162,7 +164,7 @@ DECLARE
 BEGIN
   -- upsert 
   INSERT INTO evidence.example_items(sentence_id, lemma, context, score) 
-       VALUES (sentence_id::uuid, lemma::citext, context::jsonb, score::double precision)
+       VALUES (sentence_id::uuid, lemma::text, context::jsonb, score::double precision)
   ON CONFLICT ON CONSTRAINT uk_example_items_1 DO 
        UPDATE SET score = EXCLUDED.score
   RETURNING item_id INTO new_item_id
@@ -219,7 +221,7 @@ CREATE OR REPLACE FUNCTION evidence.query_by_lemmata(
   )
   RETURNS TABLE (
     sentence_id uuid,
-    lemmata citext[],
+    lemmata text[],
     context jsonb,
     score double precision
   ) AS
@@ -242,9 +244,9 @@ BEGIN
             WHERE (
               CASE
                 WHEN array_length(searchlemmata::text[], 1) IS NULL THEN true
-                ELSE tb0.lemma = ANY(searchlemmata::citext[])
+                ELSE tb0.lemma = ANY(searchlemmata::text[])
                 -- ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
-                --         searchlemmata::citext[]))
+                --         searchlemmata::text[]))
               END)
             ORDER BY tb0.sentence_id, tb0.lemma
         ) tb1
