@@ -37,10 +37,15 @@ evidence.sentences_cache (
 );
 
 -- search by: (sentence_id), sentence_text
-CREATE INDEX CONCURRENTLY "gist_sentences_cache_1" 
-  ON evidence.sentences_cache USING GIST (sentence_text)
-;
-CREATE INDEX CONCURRENTLY "gin_sentences_cache_2" 
+CREATE INDEX CONCURRENTLY "gin_sentences_cache_1" 
+  ON evidence.sentences_cache USING GIN (sentence_text gin_trgm_ops)
+; -- for LIKE, ILIKE, ~ and ~* regex
+
+CREATE INDEX CONCURRENTLY "bt_sentences_cache_2" 
+  ON evidence.sentences_cache USING BTREE (sentence_text)
+; -- for "="
+
+CREATE INDEX CONCURRENTLY "gin_sentences_cache_3" 
   ON evidence.sentences_cache USING GIN (annotation)
 ;
 
