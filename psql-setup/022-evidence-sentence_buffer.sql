@@ -46,7 +46,8 @@ CREATE INDEX CONCURRENTLY "bt_sentences_cache_2"
 ; -- for "="
 
 CREATE INDEX CONCURRENTLY "gin_sentences_cache_3" 
-  ON evidence.sentences_cache USING GIN (annotation)
+  ON evidence.sentences_cache USING GIN (annotation json_path_ops)
+  WHERE annotation IS NOT NULL 
 ;
 
 

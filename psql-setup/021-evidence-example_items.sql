@@ -58,7 +58,7 @@ CREATE INDEX CONCURRENTLY "bt_example_items_3"
 ; -- for "="
 
 CREATE INDEX CONCURRENTLY "gin_example_items_4" 
-  ON evidence.example_items USING GIN (context)
+  ON evidence.example_items USING GIN (context json_path_ops)
 ;
 
 
