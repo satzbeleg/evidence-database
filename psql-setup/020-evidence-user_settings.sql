@@ -16,7 +16,7 @@ CREATE UNIQUE INDEX CONCURRENTLY "uk_user_settings_1"
 
 -- search by: (username), settings
 CREATE INDEX CONCURRENTLY "gin_user_settings_2"
-  ON evidence.user_settings USING GIN (settings json_path_ops)
+  ON evidence.user_settings USING GIN (settings jsonb_path_ops)
 ;
 
 -- Kommentare
