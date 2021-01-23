@@ -28,10 +28,12 @@ evidence.evaluated_bestworst (
 -- search by: username, ui_name, lemmata
 CREATE INDEX CONCURRENTLY "bt_evaluated_bestworst_1" 
   ON evidence.evaluated_bestworst USING BTREE (username)
-;
+; -- for "="
+
 CREATE INDEX CONCURRENTLY "bt_evaluated_bestworst_2" 
   ON evidence.evaluated_bestworst USING BTREE (ui_name)
-;
+; -- for "="
+
 CREATE INDEX CONCURRENTLY "gin_evaluated_bestworst_3" 
   ON evidence.evaluated_bestworst USING GIN (lemmata)
 ;

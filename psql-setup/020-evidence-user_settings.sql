@@ -12,7 +12,7 @@ evidence.user_settings (
 -- keys
 CREATE UNIQUE INDEX CONCURRENTLY "uk_user_settings_1" 
   ON evidence.user_settings USING BTREE (username)
-;
+; -- for "="
 
 -- search by: (username), settings
 CREATE INDEX CONCURRENTLY "gin_user_settings_2"
