@@ -21,14 +21,3 @@ DROP SCHEMA IF EXISTS evidence CASCADE;
 
 CREATE SCHEMA IF NOT EXISTS auth;
 CREATE SCHEMA IF NOT EXISTS evidence;
-
-
--- 
--- 01x - Authentication
--- \i psql-setup/010-auth-users.sql
--- \i psql-setup/019-auth-prepopulate.sql
--- 
-
--- 
--- 02x - Evidence App Data
--- 
