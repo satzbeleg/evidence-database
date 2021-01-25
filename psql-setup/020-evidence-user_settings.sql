@@ -4,18 +4,31 @@
 CREATE TABLE IF NOT EXISTS 
 evidence.user_settings (
     row_id      uuid DEFAULT uuid_generate_v4()
-  , username    text NOT NULL
-  , settings    JSONB DEFAULT NULL
+  , username    text NOT NULL  -- immutable field
+  , settings    JSONB DEFAULT NULL   -- mutable field
   , PRIMARY KEY(row_id)
-  , UNIQUE(username)
 );
 
+-- keys
+CREATE UNIQUE INDEX CONCURRENTLY "uk_user_settings_1" 
+  ON evidence.user_settings USING BTREE (username)
+; -- for "="
+
+-- search by: (username), settings
+CREATE INDEX CONCURRENTLY "gin_user_settings_2"
+  ON evidence.user_settings USING GIN (settings jsonb_path_ops)
+;
+
+-- Kommentare
 COMMENT ON COLUMN evidence.user_settings.row_id IS 
-  'Internal primary key (UUID4) of the table for SQL purposes (e.g. join, foreign key). In our case this row_id has no meaning';
+  'Internal primary key (UUID4) of the table for SQL purposes (e.g. join, foreign key). In our case this row_id has no meaning'
+;
 COMMENT ON COLUMN evidence.user_settings.username IS 
-  'Unique username from an authentification database. Currently the app uses `auth.users.username` what is planned to be replaced by an DWDS Auth API.';
+  'Unique username from an authentification database. Currently the app uses `auth.users.username` what is planned to be replaced by an DWDS Auth API.'
+;
 COMMENT ON COLUMN evidence.user_settings.settings IS 
-  'JSON with all user specific settings. Usually the whole JSON object is updated.';
+  'JSON with all user specific settings. Usually the whole JSON object is updated.'
+;
 
 
 -- 

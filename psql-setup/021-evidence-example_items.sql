@@ -21,7 +21,10 @@
 -- (A) REQUIRED TYPES
 -- -----------------------------------------------------------------------
 
--- n.a.
+-- DROP DOMAIN IF EXISTS auth.username_t;
+CREATE DOMAIN evidence.score_t AS double precision
+  CHECK ( value >= 0.0 AND value <= 1.0 )
+;
 
 
 
@@ -31,16 +34,35 @@
 CREATE TABLE IF NOT EXISTS 
 evidence.example_items (
     item_id     uuid DEFAULT uuid_generate_v4()
+  -- immutable fields (data for unique key)
   , sentence_id uuid NOT NULL
-  , lemma       citext NOT NULL
+  , lemma       text NOT NULL
   , context     jsonb NOT NULL
-  , score       double precision DEFAULT NULL
+  -- mutable fields
+  , score       evidence.score_t DEFAULT NULL
   , PRIMARY KEY(item_id)
-  , CONSTRAINT uk_example_items_1 
-      UNIQUE(sentence_id, lemma, context)
 );
 
--- comments
+-- keys
+CREATE UNIQUE INDEX CONCURRENTLY "uk_example_items_1" 
+  ON evidence.example_items USING BTREE (sentence_id, lemma, context)
+;
+
+-- search by: sentence_id, lemma, context
+CREATE INDEX CONCURRENTLY "bt_example_items_2" 
+  ON evidence.example_items USING BTREE (sentence_id)
+; -- for "="
+
+CREATE INDEX CONCURRENTLY "bt_example_items_3" 
+  ON evidence.example_items USING BTREE (lemma)
+; -- for "="
+
+CREATE INDEX CONCURRENTLY "gin_example_items_4" 
+  ON evidence.example_items USING GIN (context jsonb_path_ops)
+;
+
+
+-- Kommentare
 -- internal ID
 -- sentID=internal ID Default NULL
 -- sentence text
@@ -59,11 +81,14 @@ evidence.score_history (
   , created_at  timestamp NOT NULL default CURRENT_TIMESTAMP
   , model_info  jsonb NOT NULL
   , PRIMARY KEY(history_id)
-  , CONSTRAINT uk_score_history_1 
-      UNIQUE(item_id, score, created_at, model_info)
   , CONSTRAINT fk_score_history_2 FOREIGN KEY(item_id)
       REFERENCES evidence.example_items(item_id) ON DELETE CASCADE
 );
+
+-- keys
+CREATE UNIQUE INDEX CONCURRENTLY "uk_score_history_1" 
+  ON evidence.score_history USING BTREE (item_id, score, created_at, model_info)
+;
 
 
 
@@ -94,7 +119,7 @@ evidence.score_history (
 -- DROP FUNCTION IF EXISTS evidence.upsert_example_item;
 CREATE OR REPLACE FUNCTION evidence.upsert_example_item(
     sentence_id uuid, 
-    lemma citext,
+    lemma text,
     context jsonb
   )
   RETURNS uuid AS
@@ -103,7 +128,7 @@ DECLARE
   new_item_id uuid;
 BEGIN
   INSERT INTO evidence.example_items(sentence_id, lemma, context) 
-       VALUES (sentence_id::uuid, lemma::citext, context::jsonb)
+       VALUES (sentence_id::uuid, lemma::text, context::jsonb)
   ON CONFLICT DO NOTHING
   RETURNING item_id INTO new_item_id
   ;
@@ -127,7 +152,7 @@ LANGUAGE plpgsql
 -- DROP FUNCTION IF EXISTS evidence.upsert_scored_example_item;
 CREATE OR REPLACE FUNCTION evidence.upsert_scored_example_item(
     sentence_id uuid, 
-    lemma citext, 
+    lemma text, 
     context jsonb,
     score double precision, 
     model_info jsonb
@@ -139,7 +164,7 @@ DECLARE
 BEGIN
   -- upsert 
   INSERT INTO evidence.example_items(sentence_id, lemma, context, score) 
-       VALUES (sentence_id::uuid, lemma::citext, context::jsonb, score::double precision)
+       VALUES (sentence_id::uuid, lemma::text, context::jsonb, score::double precision)
   ON CONFLICT ON CONSTRAINT uk_example_items_1 DO 
        UPDATE SET score = EXCLUDED.score
   RETURNING item_id INTO new_item_id
@@ -196,7 +221,7 @@ CREATE OR REPLACE FUNCTION evidence.query_by_lemmata(
   )
   RETURNS TABLE (
     sentence_id uuid,
-    lemmata citext[],
+    lemmata text[],
     context jsonb,
     score double precision
   ) AS
@@ -219,8 +244,9 @@ BEGIN
             WHERE (
               CASE
                 WHEN array_length(searchlemmata::text[], 1) IS NULL THEN true
-                ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
-                        searchlemmata::citext[]))
+                ELSE tb0.lemma = ANY(searchlemmata::text[])
+                -- ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
+                --         searchlemmata::text[]))
               END)
             ORDER BY tb0.sentence_id, tb0.lemma
         ) tb1

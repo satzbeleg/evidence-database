@@ -32,8 +32,23 @@ CREATE TABLE IF NOT EXISTS
 evidence.sentences_cache (
     sentence_id     uuid NOT NULL
   , sentence_text   text NOT NULL
+  , annotation      jsonb DEFAULT NULL
   , PRIMARY KEY(sentence_id)
 );
+
+-- search by: (sentence_id), sentence_text
+CREATE INDEX CONCURRENTLY "gin_sentences_cache_1" 
+  ON evidence.sentences_cache USING GIN (sentence_text gin_trgm_ops)
+; -- for LIKE, ILIKE, ~ and ~* regex
+
+CREATE INDEX CONCURRENTLY "bt_sentences_cache_2" 
+  ON evidence.sentences_cache USING BTREE (sentence_text)
+; -- for "="
+
+CREATE INDEX CONCURRENTLY "gin_sentences_cache_3" 
+  ON evidence.sentences_cache USING GIN (annotation jsonb_path_ops)
+  WHERE annotation IS NOT NULL 
+;
 
 
 
