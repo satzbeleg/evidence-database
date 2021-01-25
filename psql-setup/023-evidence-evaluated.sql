@@ -1,15 +1,14 @@
 
+-- -----------------------------------------------------------------------
+-- (A) REQUIRED TYPES
+-- -----------------------------------------------------------------------
 
--- keep it generic
--- internal evaluated_id (not the same as set_id in WebApp/RestAPI)
--- username text
--- ui_name text
--- set_id  UUID4  (created by WebApp/RestAPI)
--- event_history JSONB
--- state_sentid  JSONB
--- checkout_data JSONB
+--  n.a.
 
 
+-- -----------------------------------------------------------------------
+-- (B) TABLE 
+-- -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS 
 evidence.evaluated_bestworst (
     set_id      uuid NOT NULL
@@ -37,3 +36,39 @@ CREATE INDEX CONCURRENTLY "bt_evaluated_bestworst_2"
 CREATE INDEX CONCURRENTLY "gin_evaluated_bestworst_3" 
   ON evidence.evaluated_bestworst USING GIN (lemmata array_ops)
 ;
+
+
+-- Kommentare
+COMMENT ON COLUMN evidence.evaluated_bestworst.set_id IS 
+  'UUID4 of the example set (Satzgruppe). It is the primary key but generated externally by Evidence REST API.'
+;
+COMMENT ON COLUMN evidence.evaluated_bestworst.username IS 
+  'Unique username from an authentification database. Currently the app uses `auth.users.username` what is planned to be replaced by an DWDS Auth API.'
+;
+COMMENT ON COLUMN evidence.evaluated_bestworst.ui_name IS 
+  'Refers to Vue3 View component of the Evidence WebApp.'
+;
+COMMENT ON COLUMN evidence.evaluated_bestworst.lemmata IS 
+  'Array of lemmata that characterize all sentence examples (Satzbelege) of the example set (Satzgruppe).'
+;
+COMMENT ON COLUMN evidence.evaluated_bestworst.event_history IS 
+  'Array of all events tracked in the Evidence Web App while evaluating this example set.'
+;
+COMMENT ON COLUMN evidence.evaluated_bestworst.state_sentid_map IS 
+  'Maps the UI states (e.g. states 0,1,2, or 3) with the SentenceIDs.'
+;
+
+
+
+-- -----------------------------------------------------------------------
+-- (C) TRIGGERS 
+-- -----------------------------------------------------------------------
+
+-- n.a.
+
+
+-- -----------------------------------------------------------------------
+-- (D) FUNCTIONS 
+-- -----------------------------------------------------------------------
+
+-- n.a.
