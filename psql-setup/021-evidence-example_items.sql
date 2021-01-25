@@ -63,11 +63,21 @@ CREATE INDEX CONCURRENTLY "gin_example_items_4"
 
 
 -- Kommentare
--- internal ID
--- sentID=internal ID Default NULL
--- sentence text
--- scores Default 0
--- lemmata : Array text[] default NULL
+COMMENT ON COLUMN evidence.example_items.item_id IS 
+  'Internal primary key (UUID4) of the table for SQL purposes (e.g. join, foreign key).'
+;
+COMMENT ON COLUMN evidence.example_items.sentence_id IS 
+  'The SentenceID from the SentenceStore API, that relates to the score.'
+;
+COMMENT ON COLUMN evidence.example_items.lemma IS 
+  'Array with lemmata (usually just 1 lemma) that relate to the score'
+;
+COMMENT ON COLUMN evidence.example_items.context IS 
+  'An JSON object with further information that are shown to the users in the UI that in turn might effect the evaluation and thus the score.'
+;
+COMMENT ON COLUMN evidence.example_items. IS 
+  'A floating number between 0.0 and 1.0'
+;
 
 
 -- -----------------------------------------------------------------------
