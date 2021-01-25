@@ -11,6 +11,7 @@ CREATE EXTENSION IF NOT EXISTS citus;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- CREATE EXTENSION btree_gist;
 CREATE EXTENSION pg_trgm;
+CREATE EXTENSION pgcrypto;
 
 -- 
 -- Create schemes
