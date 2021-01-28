@@ -75,7 +75,7 @@ COMMENT ON COLUMN evidence.example_items.lemma IS
 COMMENT ON COLUMN evidence.example_items.context IS 
   'An JSON object with further information that are shown to the users in the UI that in turn might effect the evaluation and thus the score.'
 ;
-COMMENT ON COLUMN evidence.example_items. IS 
+COMMENT ON COLUMN evidence.example_items.score IS 
   'A floating number between 0.0 and 1.0'
 ;
 
@@ -227,7 +227,7 @@ LANGUAGE plpgsql
 CREATE OR REPLACE FUNCTION evidence.query_by_lemmata(
     searchlemmata text[],
     n_examples int,
-    n_start_index int
+    n_offset int
   )
   RETURNS TABLE (
     sentence_id uuid,
@@ -269,7 +269,7 @@ BEGIN
       END)
     ORDER BY tb2.score DESC
     LIMIT n_examples 
-    OFFSET n_start_index
+    OFFSET n_offset
     ;
 END;
 $$ 
