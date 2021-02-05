@@ -211,6 +211,40 @@ LANGUAGE plpgsql
 ;
 
 
+-- 
+-- UPDATE SCORES FOR A SENTENCE ID
+--  - it's a unique tuple of (lemma/keyword, sentence_id, context)
+-- 
+-- Example:
+-- -------
+--    SELECT evidence.update_scores(
+--      'kasdjflk', 0.777, '{"model": "evidence", "version": "0.1.0"}'::jsonb)
+-- 
+-- DROP FUNCTION IF EXISTS evidence.update_scores;
+CREATE OR REPLACE FUNCTION evidence.update_scores(
+    sent_id uuid, 
+    score_val double precision, 
+    model_info jsonb
+  )
+  RETURNS void AS
+$$
+BEGIN
+  -- update
+  UPDATE evidence.example_items
+    SET score=score_val::double precision
+  WHERE sentence_id=sent_id::uuid
+  ;
+  -- log in score history
+  INSERT INTO evidence.score_history(item_id, score, model_info)
+    SELECT item_id::uuid, score::double precision, model_info::jsonb
+      FROM evidence.example_items
+    WHERE sentence_id=sent_id::uuid
+  ;
+END;
+$$ 
+LANGUAGE plpgsql
+;
+
 
 -- 
 -- Query by lemmata for random sampling (pl.)
