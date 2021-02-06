@@ -9,7 +9,7 @@ INSERT INTO evidence.sentences_cache(sentence_id, sentence_text, annotation) VAL
 )
 ,(
     uuid_generate_v4(), 'Nach den jüngsten Ausschreitungen am und im Washingtoner Kapitol droht dem noch amtierenden amerikanischen Präsidenten Donald Trump – erstmals in der Geschichte der USA – ein zweites Amtsenthebungsverfahren.',
-    '{"token": [], "spans": [], "compound": []}'::jsonb
+    '{}'::jsonb
 )
 ,(
     uuid_generate_v4(), 'Sollten alle drei Prozessschritte (Untersuchung und Anklage, Verfahrenseinleitung durch Wahl im Repräsentantenhaus, Anhörung und Verurteilung im Senat) erfolgreich sein, wird er sofort seines Amtes enthoben und könnte (auch nach Ende seiner Regierungszeit) einige oder alle seine Privilegien (Pension bis zum Lebensende, Reisebudget etc.) verlieren.',
@@ -17,7 +17,7 @@ INSERT INTO evidence.sentences_cache(sentence_id, sentence_text, annotation) VAL
 )
 ,(
     uuid_generate_v4(), 'Auf Bundesebene braucht es für eine Anklage (Impeachment) eine einfache Mehrheit im Repräsentantenhaus und danach für eine Verurteilung (Amtsenthebung) eine Zweidrittelmehrheit im Senat.',
-    '{"token": [{"lemma": "Impeachment", "span": [45, 56]}], "spans": [], "compound": []}'::jsonb
+    '{"token": [{"lemma": "Impeachment", "span": [45, 56]}]}'::jsonb
 )
 ,(
     uuid_generate_v4(), 'Diese Gefahr ist für ihn schwieriger zu kalkulieren als das Risiko eines Impeachments durch das Repräsentantenhaus, auf das er durch politische und legalistische Schachzüge nach wie vor Einfluß nehmen kann.',
@@ -78,7 +78,7 @@ INSERT INTO evidence.sentences_cache(sentence_id, sentence_text, annotation) VAL
 ,(
     uuid_generate_v4(), 
     'Warum hat Boris Jelzin ausgerechnet unmittelbar vor der Abstimmung über das Impeachment den im Parlament angesehenen Primakow entlassen?',
-    '{"token": [], "spans": [], "compound": [{"lemma": "Impeachment", "spans": [[76, 87]]}]}'::jsonb
+    '{"compound": [{"lemma": "Impeachment", "spans": [[76, 87]]}]}'::jsonb
 )
 ,(
     uuid_generate_v4(), 
