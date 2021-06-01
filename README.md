@@ -5,12 +5,19 @@ Postgres Database for EVIDENCE project
 1. Starte die Container
 
 ```bash
-docker network create --driver bridge \
-    --subnet=172.20.253.0/28 \
-    --ip-range=172.20.253.8/29 \
-    evidence-backend-network
+# Host Server's Port Settings
+export DATABASE_HOST_PORT=55015
+export PGADMIN_HOST_PORT=55016
 
-docker-compose up --build
+# Postgres Settings
+export POSTGRES_USER=postgres
+export POSTGRES_PASSWORD=password1234
+
+# PgAdmin Settings
+export PGADMIN_EMAIL=test@mail.com
+export PGADMIN_PASSWORD=password1234
+
+docker compose up --build
 ```
 
 2. Öffne das pgAdmin Dashboard im Browser [localhost:8889](http://localhost:8889/)
