@@ -1,8 +1,9 @@
 # psql-evidence-database
 Postgres Database for EVIDENCE project
 
-## Getting Started -- Lokal entwickeln
-1. Starte die Container
+
+## Start the Database as docker container
+The file `docker-compose.yml` contains an **configuration example** how to deploy the REST API as docker container. It is recommended to add this repository as git submodule to an deployment repository with a central Docker Compose configuration that suits your needs. 
 
 ```bash
 # Host Server's Port Settings
@@ -19,6 +20,7 @@ export PGADMIN_PASSWORD=password1234
 
 docker compose up --build
 ```
+
 
 2. Öffne das pgAdmin Dashboard im Browser [localhost:8889](http://localhost:8889/)
 
