@@ -1,21 +1,54 @@
 # THIS IS JUST AN EXAMPLE! PLEASE ADJUST IT TO YOUR NEEDS!
-version: "3"
+version: '3'
 
 services:
-  evidence-database:
-    container_name: evidence-database
-    image: citusdata/citus:9.4-alpine
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_HOST_AUTH_METHOD: trust
+  # see https://github.com/citusdata/docker/blob/master/docker-compose.yml
+  master:
+    container_name: "evidence-database_master"
+    image: 'citusdata/citus:10.0.3'
+    labels: ['com.citusdata.role=Master']
+    environment: &AUTH
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      PGUSER: "${POSTGRES_USER:-postgres}"
+      PGPASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-trust}"
     ports:
-      - "${DATABASE_HOST_PORT}:5432"   # 55015
+      - "${DATABASE_HOST_PORT:-5432}:5432"   # 55015
     volumes: 
-      - ./psql-setup/:/docker-entrypoint-initdb.d/
+      - ${POSTGRES_DATA}:/var/lib/postgresql/data   # Persistent on SSD/HDD
+      - ./psql-setup/:/docker-entrypoint-initdb.d/   # installation scripts
     networks:
       evidence-backend-network:
         ipv4_address: 172.20.253.5
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+        #window: 300s
+
+  worker:
+    image: 'citusdata/citus:10.0.3'
+    labels: ['com.citusdata.role=Worker']
+    depends_on: [ manager ]
+    environment: *AUTH
+    command: "/wait-for-manager.sh"
+    volumes: 
+      - healthcheck-volume:/healthcheck
+    networks: [ evidence-backend-network ]  # dynamic IPs!
+  
+  manager:
+    container_name: "evidence-database_manager"
+    image: 'citusdata/membership-manager:0.3.0'
+    volumes: 
+      - "${DATABASE_DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
+      - healthcheck-volume:/healthcheck
+    depends_on: [ master ]
+    environment: *AUTH
+    networks:
+      evidence-backend-network:
+        ipv4_address: 172.20.253.4
     deploy:
       restart_policy:
         condition: on-failure
@@ -41,8 +74,11 @@ services:
         delay: 10s
         max_attempts: 5
         #window: 300s
-    depends_on: [ evidence-database ]
-      
+    depends_on: [ manager ]
+
+volumes:
+  healthcheck-volume:
+
 networks:
   evidence-backend-network:
     name: evidence-backend-network

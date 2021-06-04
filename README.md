@@ -13,12 +13,17 @@ export PGADMIN_HOST_PORT=55016
 # Postgres Settings
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=password1234
+# Persistent Storage
+mkdir -p tmp/data
+export POSTGRES_DATA=./tmp/data
 
 # PgAdmin Settings
 export PGADMIN_EMAIL=test@mail.com
 export PGADMIN_PASSWORD=password1234
 
-docker compose up --build
+docker compose -p evidence up --build 
+docker-compose -p evidence scale worker=2
+#docker compose -p evidence rm
 ```
 
 

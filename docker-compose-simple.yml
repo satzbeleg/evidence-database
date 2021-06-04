@@ -1,0 +1,55 @@
+# THIS IS JUST AN EXAMPLE! PLEASE ADJUST IT TO YOUR NEEDS!
+version: "3"
+
+services:
+  evidence-database:
+    container_name: evidence-database
+    image: citusdata/citus:10.0-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "${DATABASE_HOST_PORT}:5432"   # 55015
+    volumes: 
+      - ${POSTGRES_DATA}:/var/lib/postgresql/data   # Persistent on SSD/HDD
+      - ./psql-setup/:/docker-entrypoint-initdb.d/   # installation scripts
+    networks:
+      evidence-backend-network:
+        ipv4_address: 172.20.253.5
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+        #window: 300s
+
+  # see https://www.pgadmin.org/docs/pgadmin4/development/container_deployment.html
+  evidence-pgadmin4:
+    container_name: evidence-pgadmin4
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "${PGADMIN_HOST_PORT}:80"   # 55016
+    networks:
+      evidence-backend-network:
+        ipv4_address: 172.20.253.6
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+        #window: 300s
+    depends_on: [ evidence-database ]
+      
+networks:
+  evidence-backend-network:
+    name: evidence-backend-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.253.0/28
+          ip_range: 172.20.253.8/29
