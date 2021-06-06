@@ -14,6 +14,7 @@ export PGADMIN_HOST_PORT=55016
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=password1234
 # Persistent Storage
+#rm -rf tmp
 mkdir -p tmp/data
 export POSTGRES_DATA=./tmp/data
 
@@ -25,6 +26,16 @@ docker compose -p evidence up --build
 docker-compose -p evidence scale worker=2
 #docker compose -p evidence rm
 ```
+
+## Insert Demo Data
+The demonstration data is not inserted during setup.
+Please run the following commands.
+
+```sh
+psql --host=127.0.0.1 --port=55015 --username=postgres -f demo-data/019-auth.sql
+psql --host=127.0.0.1 --port=55015 --username=postgres -f demo-data/029-evidence.sql
+```
+
 
 
 2. Öffne das pgAdmin Dashboard im Browser [localhost:8889](http://localhost:8889/)
@@ -69,3 +80,34 @@ pgAdmin ist innerhalb des Docker network `evidence-backend-network` erreichbar.
     - post: `5432`
     - username: `postgres`
     - password: `password1234`
+
+
+## Backup and Recovery
+In order to avoid the common version conflict problem, 
+it is recommended to `pg_dump` within the deployed container.
+
+Backup
+```sh
+suffix=$(date +"%Y-%m-%dT%H-%M")
+#container_name=database_evidence-database_1
+container_name=evidence-database_master
+docker exec -i ${container_name} \
+    pg_dump postgres --username=postgres \
+    | gzip -9 > "postgres-${suffix}.sql.gz"
+```
+
+Recovery
+```sh
+gunzip -c "postgres-${suffix}.sql.gz" | docker exec -i ${container_name} \
+    psql --username=postgres -d postgres 
+```
+
+
+## Export BWS evaluations
+
+```sh
+SELECT * FROM evidence.evaluated_bestworst LIMIT 5;
+SELECT * FROM evidence.example_items LIMIT 5;
+SELECT * FROM evidence.sentences_cache LIMIT 5;
+SELECT * FROM evidence.score_history LIMIT 5;
+```
