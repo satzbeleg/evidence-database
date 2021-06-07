@@ -1,10 +1,12 @@
 -- 
 -- Precomputed feature vectors
 -- 
--- The JSONB field `feature_vectors` can store any form of data structure,
--- e.g. a Matrix of any dimension, SpaCy3 outpus, CoNLL-U JSON, etc.
--- The `model_info` field should contain all information to reproduce the
--- data from the original text data.
+-- - The JSONB field `feature_vectors` can store any form of data structure,
+--    e.g. a Matrix of any dimension, SpaCy3 outpus, CoNLL-U JSON, etc.
+-- - The `model_info` field should contain all information to reproduce the
+--    data from the original text data.
+-- - It's a 1:N table, i.e. for 1 sentence_id there are N possible feature
+--     vector representations possible depending on `model_info`
 -- 
 -- Example: BERT Representation
 -- ----------------------------
