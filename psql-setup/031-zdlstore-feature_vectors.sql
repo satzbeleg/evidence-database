@@ -7,6 +7,8 @@
 --    data from the original text data.
 -- - It's a 1:N table, i.e. for 1 sentence_id there are N possible feature
 --     vector representations possible depending on `model_info`
+-- - Mit Hinblick auf die Migration nach CQL muss model_info ein flat dictionary
+--     sein (d.h. keine Verschachtelung!)
 -- 
 -- Example: BERT Representation
 -- ----------------------------
@@ -16,7 +18,8 @@
 --     ...
 -- ]
 -- model_info = {
---     "package": {"name": "sentence-transformers", "version": "1.2.0"},
+--     "package": "sentence-transformers", 
+--     "version": "1.2.0",
 --     "model_name": "distiluse-base-multilingual-cased-v1",
 --     "dimension": 512,
 --     "seqlen": 256,
