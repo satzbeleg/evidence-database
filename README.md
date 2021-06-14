@@ -7,24 +7,26 @@ The file `docker-compose.yml` contains an **configuration example** how to deplo
 
 ```bash
 # Host Server's Port Settings
-export DATABASE_HOST_PORT=55015
-export PGADMIN_HOST_PORT=55016
+export DBUSER_HOSTPORT=55014
+export DBAPPL_HOSTPORT=55015
+export PGADMIN_HOSTPORT=55016
 
 # Postgres Settings
-export POSTGRES_USER=postgres
-export POSTGRES_PASSWORD=password1234
+export DBAPPL_PASSWORD=password1234
+export DBUSER_PASSWORD=password1234
 # Persistent Storage
 #rm -rf tmp
-mkdir -p tmp/data
-export POSTGRES_DATA=./tmp/data
+mkdir -p tmp/{data_evidence,data_userdb}
+export DBAPPL_PERSISTENT=./tmp/data_evidence
+export DBUSER_PERSISTENT=./tmp/data_userdb
 
 # PgAdmin Settings
 export PGADMIN_EMAIL=test@mail.com
 export PGADMIN_PASSWORD=password1234
 
-docker compose -p evidence up --build 
+docker compose -p evidence \
+    -f network.yml -f dbappl.yml -f dbuser.yml -f pgadmin.yml up --build
 docker-compose -p evidence scale worker=2
-#docker compose -p evidence rm
 ```
 
 ## Insert Demo Data
@@ -32,8 +34,8 @@ The demonstration data is not inserted during setup.
 Please run the following commands.
 
 ```sh
-psql --host=127.0.0.1 --port=55015 --username=postgres -f demo-data/019-auth.sql
-psql --host=127.0.0.1 --port=55015 --username=postgres -f demo-data/029-evidence.sql
+psql --host=127.0.0.1 --port=55014 --username=postgres -f dbuser/demo/019-auth.sql
+psql --host=127.0.0.1 --port=55015 --username=postgres -f dbappl/demo/029-evidence.sql
 ```
 
 

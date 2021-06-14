@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  evidence-dbuser:
+    container_name: evidence-dbuser
+    image: postgres:13.2
+    environment: &AUTH
+      POSTGRES_USER: "${DBUSER_USER:-postgres}"
+      POSTGRES_PASSWORD: "${DBUSER_PASSWORD}"
+      PGUSER: "${DBUSER_USER:-postgres}"
+      PGPASSWORD: "${DBUSER_PASSWORD}"
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "${DBUSER_HOSTPORT:-5432}:5432"   # 55014
+    volumes: 
+      - ${DBUSER_PERSISTENT}:/var/lib/postgresql/data   # Persistent on SSD/HDD
+      - ${DBUSER_PATH:-.}/dbuser/setup/:/docker-entrypoint-initdb.d/   # installation scripts
+    networks:
+      evidence-network:
+        ipv4_address: 172.20.253.7
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+        #window: 300s
