@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  evidence-dbauth:
+    container_name: evidence-dbauth
+    image: postgres:13.2
+    environment: &AUTH
+      POSTGRES_USER: "${DBAUTH_USER:-postgres}"
+      POSTGRES_PASSWORD: "${DBAUTH_PASSWORD}"
+      PGUSER: "${DBAUTH_USER:-postgres}"
+      PGPASSWORD: "${DBAUTH_PASSWORD}"
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "${DBAUTH_HOSTPORT:-5432}:5432"   # 55014
+    volumes: 
+      - ${DBAUTH_PERSISTENT}:/var/lib/postgresql/data   # Persistent on SSD/HDD
+      - ${DBAUTH_PATH:-.}/dbauth/setup/:/docker-entrypoint-initdb.d/   # installation scripts
+    networks:
+      evidence-network:
+        ipv4_address: 172.20.253.7
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+        #window: 300s
