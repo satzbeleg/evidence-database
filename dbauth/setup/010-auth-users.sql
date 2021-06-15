@@ -4,7 +4,7 @@
 -- Requirements:
 -- -------------
 --    - We only need a very basic version. For the FastAPI we need 
---        a SQL function `auth.validate_user(username, plainpw)` 
+--        a SQL function `auth.validate_username_password(username, plainpw)` 
 --        that returns bool.
 --    - In the `evidence.???` Database we will use the unique immutable 
 --        username.
@@ -176,7 +176,7 @@ CREATE TRIGGER trg_prevent_update_username
 -- -----------------------------------------------------------------------
 -- (D) FUNCTIONS for auth.users
 --    - Add new user (auth.add_user)
---    - Validate user account (auth.validate_user)
+--    - Validate username and password (auth.validate_username_password)
 --    - Check if username is active (auth.is_active_user)
 --    - Get user_id of username (auth.username_to_userid)
 -- -----------------------------------------------------------------------
@@ -214,13 +214,13 @@ LANGUAGE plpgsql
 -- Validate user account (returns: bool)
 -- 
 -- USAGE:
---    SELECT auth.validate_user('newusername', 'secretpw');
+--    SELECT auth.validate_username_password('newusername', 'secretpw');
 -- 
 -- RETURN
 --    bool  True if username/password exists
 -- 
--- DROP FUNCTION IF EXISTS auth.validate_user;
-CREATE OR REPLACE FUNCTION auth.validate_user(
+-- DROP FUNCTION IF EXISTS auth.validate_username_password;
+CREATE OR REPLACE FUNCTION auth.validate_username_password(
     theusername auth.username_t, plainpassword text)
   RETURNS bool AS
 $$
