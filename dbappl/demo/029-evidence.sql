@@ -1,8 +1,8 @@
 
 -- 
--- evidence.sentences_cache
+-- zdlstore.sentences_cache
 -- 
-INSERT INTO evidence.sentences_cache(sentence_id, sentence_text, annotation) VALUES
+INSERT INTO zdlstore.sentences_cache(sentence_id, sentence_text, annotation) VALUES
 (
     '21152788-5dcd-4e4b-80e2-e476b242afbc', 'Impeachment ist derzeit ein Begriff mit besonderer Schlagkraft.',
     '{"token": [], "spans": [{"lemma": "Impeachment", "span": [0, 11]}], "compound": []}'::jsonb
@@ -115,7 +115,7 @@ INSERT INTO evidence.example_items (sentence_id, lemma, context, score)
                 '[\s+]', '', 'g'), '\W+', '', 'g')::text as "lemma"
         , '{"publisher": "DWDS Wörterbuch"}'::jsonb as "context"
         , random()::double precision as "score"
-    FROM evidence.sentences_cache
+    FROM zdlstore.sentences_cache
 ON CONFLICT DO NOTHING
 ;
 
