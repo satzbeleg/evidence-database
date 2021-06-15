@@ -4,7 +4,7 @@
 -- Requirements:
 -- -------------
 --    - We only need a very basic version. For the FastAPI we need 
---        a SQL function `auth.validate_user(username, plainpw)` 
+--        a SQL function `auth.validate_username_password(username, plainpw)` 
 --        that returns bool.
 --    - In the `evidence.???` Database we will use the unique immutable 
 --        username.
@@ -51,7 +51,7 @@ CREATE DOMAIN auth.username_t AS text
 
 -- setup the table again
 CREATE TABLE IF NOT EXISTS
-auth.users (
+auth.users (   -- LEGACY!
   -- automatic immutable fields
     user_id        uuid DEFAULT uuid_generate_v4()
   -- immutable fields
@@ -176,8 +176,8 @@ CREATE TRIGGER trg_prevent_update_username
 -- -----------------------------------------------------------------------
 -- (D) FUNCTIONS for auth.users
 --    - Add new user (auth.add_user)
---    - Validate user account (auth.validate_user)
---    - Check if username is active (auth.is_active_user)
+--    - Validate username and password (auth.validate_username_password)
+--    - Check if username is active (auth.is_active_user_id)
 --    - Get user_id of username (auth.username_to_userid)
 -- -----------------------------------------------------------------------
 
@@ -214,13 +214,13 @@ LANGUAGE plpgsql
 -- Validate user account (returns: bool)
 -- 
 -- USAGE:
---    SELECT auth.validate_user('newusername', 'secretpw');
+--    SELECT auth.validate_username_password('newusername', 'secretpw');
 -- 
 -- RETURN
 --    bool  True if username/password exists
 -- 
--- DROP FUNCTION IF EXISTS auth.validate_user;
-CREATE OR REPLACE FUNCTION auth.validate_user(
+-- DROP FUNCTION IF EXISTS auth.validate_username_password;
+CREATE OR REPLACE FUNCTION auth.validate_username_password(
     theusername auth.username_t, plainpassword text)
   RETURNS bool AS
 $$
@@ -239,22 +239,36 @@ $$
 LANGUAGE plpgsql
 ;
 
+-- Variant: Returns user_id
+CREATE OR REPLACE FUNCTION auth.validate_username_password2(
+    theusername auth.username_t, plainpassword text)
+  RETURNS uuid AS
+$$
+BEGIN
+  RETURN (SELECT user_id FROM auth.users 
+           WHERE username=theusername 
+             AND hashed_password=sha512(plainpassword::bytea));
+END;
+$$ 
+LANGUAGE plpgsql
+;
+
 
 -- 
--- Check if username is active (returns: bool)
+-- Check if user_id is active (returns: bool)
 -- 
 -- USAGE:
---    SELECT auth.is_active_user('newusername');
+--    SELECT auth.is_active_userid('3d376550-5265-4830-9812-5e9a84cdfa29');
 -- 
 -- RETURN
 --    bool  True if it worked, and False if it failed.
 -- 
--- DROP FUNCTION IF EXISTS auth.is_active_user;
-CREATE OR REPLACE FUNCTION auth.is_active_user(theusername auth.username_t)
+-- DROP FUNCTION IF EXISTS auth.is_active_userid;
+CREATE OR REPLACE FUNCTION auth.is_active_userid(theuserid uuid)
   RETURNS bool AS
 $$
 BEGIN
-  RETURN (SELECT isactive FROM auth.users WHERE username = theusername);
+  RETURN (SELECT isactive FROM auth.users WHERE user_id = theuserid);
 END;
 $$ 
 LANGUAGE plpgsql

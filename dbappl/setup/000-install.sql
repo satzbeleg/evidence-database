@@ -16,6 +16,5 @@ CREATE EXTENSION pgcrypto;
 -- 
 -- Create schemes
 -- 
-CREATE SCHEMA IF NOT EXISTS auth;
 CREATE SCHEMA IF NOT EXISTS evidence;
 CREATE SCHEMA IF NOT EXISTS zdlstore;

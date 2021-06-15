@@ -1,30 +1,38 @@
-# psql-evidence-database
-Postgres Database for EVIDENCE project
+# Postgres Databases for EVIDENCE project
+Three services are configured:
+- [x] `dbauth`: A Postgres DB to manage only data required for the authentication process (e.g. Recovery E-Mail, user passwords, Google ID for OAuth, etc.). 
+    - The DB does **not** user settings associated with specific applications (i.e. it's considered application data). 
+    - The UUID4 `user_id` is exposed to other applications, i.e. application could store the UUID4. The UUID4 `user_id` will then serve as *pseudonym* (Art. 4 Nr. 5 DSGVO).
+- [x] `dbappl`: A Citus/Postgres DB to manage application data. 
+    - The application DB does **not** store any *direct personal information* (Art. ??? DSGVO). Only the UUID4 `user_id` is stored as *pseudonym* (Art. 4 Nr. 5 DSGVO).
+- [x] `pgadmin`: An UI to manage Postgres databases.
 
 
-## Start the Database as docker container
+## Start the docker container
 The file `docker-compose.yml` contains an **configuration example** how to deploy the REST API as docker container. It is recommended to add this repository as git submodule to an deployment repository with a central Docker Compose configuration that suits your needs. 
 
 ```bash
 # Host Server's Port Settings
-export DATABASE_HOST_PORT=55015
-export PGADMIN_HOST_PORT=55016
+export DBAUTH_HOSTPORT=55014
+export DBAPPL_HOSTPORT=55015
+export PGADMIN_HOSTPORT=55016
 
 # Postgres Settings
-export POSTGRES_USER=postgres
-export POSTGRES_PASSWORD=password1234
+export DBAPPL_PASSWORD=password1234
+export DBAUTH_PASSWORD=password1234
 # Persistent Storage
 #rm -rf tmp
-mkdir -p tmp/data
-export POSTGRES_DATA=./tmp/data
+mkdir -p tmp/{data_evidence,data_userdb}
+export DBAPPL_PERSISTENT=./tmp/data_evidence
+export DBAUTH_PERSISTENT=./tmp/data_userdb
 
 # PgAdmin Settings
 export PGADMIN_EMAIL=test@mail.com
 export PGADMIN_PASSWORD=password1234
 
-docker compose -p evidence up --build 
+docker compose -p evidence \
+    -f network.yml -f dbappl.yml -f dbauth.yml -f pgadmin.yml up --build
 docker-compose -p evidence scale worker=2
-#docker compose -p evidence rm
 ```
 
 ## Insert Demo Data
@@ -32,8 +40,8 @@ The demonstration data is not inserted during setup.
 Please run the following commands.
 
 ```sh
-psql --host=127.0.0.1 --port=55015 --username=postgres -f demo-data/019-auth.sql
-psql --host=127.0.0.1 --port=55015 --username=postgres -f demo-data/029-evidence.sql
+psql --host=127.0.0.1 --port=55014 --username=postgres -f dbauth/demo/019-auth.sql
+psql --host=127.0.0.1 --port=55015 --username=postgres -f dbappl/demo/029-evidence.sql
 ```
 
 

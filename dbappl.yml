@@ -1,0 +1,59 @@
+version: '3.7'
+
+services:
+  # see https://github.com/citusdata/docker/blob/master/docker-compose.yml
+  master:
+    container_name: "evidence-dbappl_master"
+    image: 'citusdata/citus:10.0.3'
+    labels: ['com.citusdata.role=Master']
+    environment: &AUTH
+      POSTGRES_USER: ${DBAPPL_USER:-postgres}
+      POSTGRES_PASSWORD: ${DBAPPL_PASSWORD}
+      PGUSER: ${DBAPPL_USER:-postgres}
+      PGPASSWORD: ${DBAPPL_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "${DBAPPL_HOSTPORT:-5432}:5432"   # 55015
+    volumes: 
+      - ${DBAPPL_PERSISTENT}:/var/lib/postgresql/data   # Persistent on SSD/HDD
+      - ${DBAPPL_PATH:-.}/dbappl/setup/:/docker-entrypoint-initdb.d/   # installation scripts
+    networks:
+      evidence-network:
+        ipv4_address: 172.20.253.5
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+        #window: 300s
+
+  worker:
+    depends_on: [ manager ]
+    image: 'citusdata/citus:10.0.3'
+    labels: ['com.citusdata.role=Worker']
+    environment: *AUTH
+    command: "/wait-for-manager.sh"
+    volumes: 
+      - healthcheck-volume:/healthcheck
+    networks: [ evidence-network ]  # dynamic IPs!
+  
+  manager:
+    depends_on: [ master ]
+    container_name: "evidence-dbappl_manager"
+    image: 'citusdata/membership-manager:0.3.0'
+    volumes: 
+      - ${DBAPPL_DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock
+      - healthcheck-volume:/healthcheck
+    environment: *AUTH
+    networks:
+      evidence-network:
+        ipv4_address: 172.20.253.4
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+        #window: 300s
+
+volumes:
+  healthcheck-volume:
