@@ -7,10 +7,10 @@ services:
     image: 'citusdata/citus:10.0.3'
     labels: ['com.citusdata.role=Master']
     environment: &AUTH
-      POSTGRES_USER: "${DBAPPL_USER:-postgres}"
-      POSTGRES_PASSWORD: "${DBAPPL_PASSWORD}"
-      PGUSER: "${DBAPPL_USER:-postgres}"
-      PGPASSWORD: "${DBAPPL_PASSWORD}"
+      POSTGRES_USER: ${DBAPPL_USER:-postgres}
+      POSTGRES_PASSWORD: ${DBAPPL_PASSWORD}
+      PGUSER: ${DBAPPL_USER:-postgres}
+      PGPASSWORD: ${DBAPPL_PASSWORD}
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "${DBAPPL_HOSTPORT:-5432}:5432"   # 55015
@@ -42,7 +42,7 @@ services:
     container_name: "evidence-dbappl_manager"
     image: 'citusdata/membership-manager:0.3.0'
     volumes: 
-      - "${DBAPPL_DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
+      - ${DBAPPL_DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock
       - healthcheck-volume:/healthcheck
     environment: *AUTH
     networks:

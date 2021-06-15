@@ -9,7 +9,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
-      - "${PGADMIN_HOSTPORT}:80"   # 55016
+      - ${PGADMIN_HOSTPORT}:80   # 55016
     networks:
       evidence-network:
         ipv4_address: 172.20.253.6

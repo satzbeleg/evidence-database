@@ -5,10 +5,10 @@ services:
     container_name: evidence-dbauth
     image: postgres:13.2
     environment: &AUTH
-      POSTGRES_USER: "${DBAUTH_USER:-postgres}"
-      POSTGRES_PASSWORD: "${DBAUTH_PASSWORD}"
-      PGUSER: "${DBAUTH_USER:-postgres}"
-      PGPASSWORD: "${DBAUTH_PASSWORD}"
+      POSTGRES_USER: ${DBAUTH_USER:-postgres}
+      POSTGRES_PASSWORD: ${DBAUTH_PASSWORD}
+      PGUSER: ${DBAUTH_USER:-postgres}
+      PGPASSWORD: ${DBAUTH_PASSWORD}
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "${DBAUTH_HOSTPORT:-5432}:5432"   # 55014
