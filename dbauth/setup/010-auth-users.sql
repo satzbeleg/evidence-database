@@ -177,7 +177,7 @@ CREATE TRIGGER trg_prevent_update_username
 -- (D) FUNCTIONS for auth.users
 --    - Add new user (auth.add_user)
 --    - Validate username and password (auth.validate_username_password)
---    - Check if username is active (auth.is_active_user_id)
+--    - Check if username is active (auth.username_isactive)
 --    - Get user_id of username (auth.username_to_userid)
 -- -----------------------------------------------------------------------
 
@@ -258,13 +258,13 @@ LANGUAGE plpgsql
 -- Check if user_id is active (returns: bool)
 -- 
 -- USAGE:
---    SELECT auth.is_active_userid('3d376550-5265-4830-9812-5e9a84cdfa29');
+--    SELECT auth.username_isactive('3d376550-5265-4830-9812-5e9a84cdfa29');
 -- 
 -- RETURN
 --    bool  True if it worked, and False if it failed.
 -- 
--- DROP FUNCTION IF EXISTS auth.is_active_userid;
-CREATE OR REPLACE FUNCTION auth.is_active_userid(theuserid uuid)
+-- DROP FUNCTION IF EXISTS auth.username_isactive;
+CREATE OR REPLACE FUNCTION auth.username_isactive(theuserid uuid)
   RETURNS bool AS
 $$
 BEGIN
