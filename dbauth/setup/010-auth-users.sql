@@ -71,9 +71,9 @@ CREATE UNIQUE INDEX CONCURRENTLY "uk_users_1"
   ON auth.users USING BTREE (username)
 ; -- for "="
 
--- search by
+-- search: WHERE username=u AND hashed_password=pw
 CREATE INDEX CONCURRENTLY "bt_users_2" 
-  ON auth.users USING BTREE (hashed_password)
+  ON auth.users USING BTREE (username, hashed_password)
 ; -- for "="
 
 
