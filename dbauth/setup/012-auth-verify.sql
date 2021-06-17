@@ -88,12 +88,14 @@ CREATE TRIGGER trg_purge_old_verification_tokens
 CREATE FUNCTION auth.issue_verify_token(the_user_id uuid) 
   RETURNS uuid AS 
 $$
+DECLARE
+  the_token uuid;
 BEGIN
   INSERT INTO auth.verify(user_id)
        VALUES (the_user_id::uuid)
-  RETURNING token 
+  RETURNING token INTO the_token
   ;
-  RETURN token;
+  RETURN the_token;
 END;
 $$ 
 LANGUAGE plpgsql
@@ -103,21 +105,23 @@ LANGUAGE plpgsql
 CREATE FUNCTION auth.verify_token(the_token uuid) 
   RETURNS text AS 
 $$
+DECLARE
+  the_user_id uuid;
 BEGIN
   -- Delete old tokens before checking
   DELETE FROM auth.verify
   WHERE created_at < (NOW()::timestamp - interval '3 hours')
   ;
   -- Find associated UserID of the token, and set user_id to active
-  UPDATE auth.email
+  UPDATE auth.emails
      SET isactive = TRUE
    WHERE user_id = (SELECT user_id FROM auth.verify 
                     WHERE token = the_token LIMIT 1)::uuid
-  RETURNING user_id as the_user_id
+  RETURNING user_id INTO the_user_id
   ;
   -- Delete issued token
   DELETE FROM auth.verify
-  WHERE token = the_token
+  WHERE user_id = the_user_id
   ;
   -- done
   RETURN the_user_id::text;

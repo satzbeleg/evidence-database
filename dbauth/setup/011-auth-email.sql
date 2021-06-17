@@ -69,8 +69,9 @@ CREATE INDEX CONCURRENTLY "bt_emails_2"
 ; -- for "="
 
 -- search: WHERE isactive=0 AND created_at < (NOW()::timestamp - interval '24 hours')
+-- BRIN cannot deal with boolean
 CREATE INDEX CONCURRENTLY "brn_emails_3" 
-  ON auth.emails USING BRIN (isactive, created_at)
+  ON auth.emails USING BRIN (created_at)
 ;
 
 
