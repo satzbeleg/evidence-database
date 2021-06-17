@@ -38,8 +38,8 @@ auth.verify (   -- LEGACY!
 );
 
 -- search: where created_at < (NOW()::timestamp - interval '3 hours')
-CREATE INDEX CONCURRENTLY "bi_verify_1" 
-  ON auth.verify USING brin(created_at)
+CREATE INDEX CONCURRENTLY "brn_verify_1" 
+  ON auth.verify USING BRIN (created_at)
 ;
 
 
