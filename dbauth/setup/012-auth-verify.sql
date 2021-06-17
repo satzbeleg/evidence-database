@@ -47,8 +47,9 @@ CREATE INDEX CONCURRENTLY "bi_verify_1"
 -- (C) TRIGGERS 
 -- -----------------------------------------------------------------------
 
+-- Would be overkill
 -- purge old tokens before any insert query
-CREATE FUNCTION auth.purge_old_verification_tokens() 
+/* CREATE FUNCTION auth.purge_old_verification_tokens() 
   RETURNS TRIGGER AS 
 $$
 BEGIN
@@ -66,7 +67,7 @@ CREATE TRIGGER trg_purge_old_verification_tokens
     ON auth.verify
   FOR EACH STATEMENT
     EXECUTE PROCEDURE auth.purge_old_verification_tokens()
-;
+; */
 
 -- -----------------------------------------------------------------------
 -- (D) FUNCTIONS 
@@ -92,7 +93,7 @@ CREATE FUNCTION auth.verify_token(the_token uuid)
   RETURNS text AS 
 $$
 BEGIN
-  -- Delete old tokens
+  -- Delete old tokens before checking
   DELETE FROM auth.verify
   WHERE created_at < (NOW()::timestamp - interval '3 hours')
   ;
