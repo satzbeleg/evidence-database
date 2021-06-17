@@ -178,7 +178,6 @@ CREATE TRIGGER trg_prevent_update_username
 --    - Add new user (auth.add_user)
 --    - Validate username and password (auth.validate_username_password)
 --    - Check if username is active (auth.username_isactive)
---    - Get user_id of username (auth.username_to_userid)
 -- -----------------------------------------------------------------------
 
 
@@ -274,23 +273,3 @@ $$
 LANGUAGE plpgsql
 ;
 
-
--- 
--- Get UserId by username (returns: uuid)
--- 
--- USAGE:
---    SELECT auth.username_to_userid('newusername');
--- 
--- RETURN
---    uuid  The unique UserId
--- 
--- DROP FUNCTION IF EXISTS auth.username_to_userid;
-CREATE OR REPLACE FUNCTION auth.username_to_userid(theusername auth.username_t)
-  RETURNS uuid AS
-$$
-BEGIN
-  RETURN (SELECT user_id FROM auth.users WHERE username = theusername);
-END;
-$$ 
-LANGUAGE plpgsql
-;
