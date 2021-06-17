@@ -180,6 +180,12 @@ $$
 DECLARE
   newuser_id uuid;
 BEGIN
+  -- Delete not activated accounts after 24 hours
+  DELETE FROM auth.emails
+  WHERE isactive = FALSE 
+    AND created_at < (NOW()::timestamp - interval '24 hours')
+  ;
+  -- add new user 
   INSERT INTO auth.emails(email, hashed_password) 
   VALUES (
     the_email::auth.email_t, 
