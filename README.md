@@ -7,7 +7,7 @@ Es sind zwei Datenbankensysteme und ein Verwaltungsdienst hier konfiguriert.
     - In der `dbauth` Datenbanken werden **keine** Benutzereinstellung einer Anwendungen gespeichert (d.h. diese werden als Anwendungsdaten betrachtet). 
     - Die UUID4 `user_id` wird an externe Anwendungen übermittelt, welche diese als *Pseudonym* (Art. 4 Nr. 5 DSGVO) extern speichern können. 
 - [x] `dbappl`: Eine Citus/Postgres Datenbank, um Anwendungsdaten zu speichern.
-    - Die Anwendungsdatenbank speicher **keine** *direkten personenbezogenen Daten* (Art. ??? DSGVO). Lediglich die UUID4 `user_id` wird als *Pseudonym* (Art. 4 Nr. 5 DSGVO) gespeichert.
+    - Die Anwendungsdatenbank speichert **keine** *direkten personenbezogenen Daten* (Art. ??? DSGVO). Lediglich die UUID4 `user_id` wird als *Pseudonym* (Art. 4 Nr. 5 DSGVO) gespeichert.
 - [x] `pgadmin`: Eine Benutzeroberfläche zur Verwaltung der Postgres Datenbanken.
 
 
