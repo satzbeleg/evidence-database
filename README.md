@@ -12,26 +12,15 @@ Three services are configured:
 The file `docker-compose.yml` contains an **configuration example** how to deploy the REST API as docker container. It is recommended to add this repository as git submodule to an deployment repository with a central Docker Compose configuration that suits your needs. 
 
 ```bash
-# Host Server's Port Settings
-export DBAUTH_HOSTPORT=55014
-export DBAPPL_HOSTPORT=55015
-export PGADMIN_HOSTPORT=55016
+# load environment variables
+set -a
+source example.env.sh
 
-# Postgres Settings
-export DBAPPL_PASSWORD=password1234
-export DBAUTH_PASSWORD=password1234
-# Persistent Storage
-#rm -rf tmp
-mkdir -p tmp/{data_evidence,data_userdb}
-export DBAPPL_PERSISTENT=./tmp/data_evidence
-export DBAUTH_PERSISTENT=./tmp/data_userdb
-
-# PgAdmin Settings
-export PGADMIN_EMAIL=test@mail.com
-export PGADMIN_PASSWORD=password1234
-
+# start containers
 docker compose -p evidence \
     -f network.yml -f dbappl.yml -f dbauth.yml -f pgadmin.yml up --build
+
+# add workers to citus db
 docker-compose -p evidence scale worker=2
 ```
 
