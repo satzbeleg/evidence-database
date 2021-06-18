@@ -191,9 +191,9 @@ BEGIN
     the_email::auth.email_t, 
     sha512(plainpassword::bytea)
   )
-  RETURNING user_id INTO newuser_id
+  ON CONFLICT DO NOTHING
   ;
-  RETURN newuser_id;
+  RETURN auth.lookup_userid_by_email(the_email::auth.email_t);
 END;
 $$ 
 LANGUAGE plpgsql

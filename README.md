@@ -1,43 +1,41 @@
-# Postgres Databases for EVIDENCE project
-Three services are configured:
-- [x] `dbauth`: A Postgres DB to manage only data required for the authentication process (e.g. Recovery E-Mail, user passwords, Google ID for OAuth, etc.). 
-    - The DB does **not** user settings associated with specific applications (i.e. it's considered application data). 
-    - The UUID4 `user_id` is exposed to other applications, i.e. application could store the UUID4. The UUID4 `user_id` will then serve as *pseudonym* (Art. 4 Nr. 5 DSGVO).
-- [x] `dbappl`: A Citus/Postgres DB to manage application data. 
-    - The application DB does **not** store any *direct personal information* (Art. ??? DSGVO). Only the UUID4 `user_id` is stored as *pseudonym* (Art. 4 Nr. 5 DSGVO).
-- [x] `pgadmin`: An UI to manage Postgres databases.
+# Postgres Datenbanken für das EVIDENCE-Projekt
+
+## Überblick
+Es sind zwei Datenbankensysteme und ein Verwaltungsdienst hier konfiguriert.
+
+- [x] `dbauth`: Eine Postgres Datenbank für den Authentifizierungsprozess (z.B. E-Mail für die Kontowiederherstellung, Passwörter, Google ID für OAuth). 
+    - In der `dbauth` Datenbanken werden **keine** Benutzereinstellung einer Anwendungen gespeichert (d.h. diese werden als Anwendungsdaten betrachtet). 
+    - Die UUID4 `user_id` wird an externe Anwendungen übermittelt, welche diese als *Pseudonym* (Art. 4 Nr. 5 DSGVO) extern speichern können. 
+- [x] `dbappl`: Eine Citus/Postgres Datenbank, um Anwendungsdaten zu speichern.
+    - Die Anwendungsdatenbank speichert **keine** *direkten personenbezogenen Daten* (Art. ??? DSGVO). Lediglich die UUID4 `user_id` wird als *Pseudonym* (Art. 4 Nr. 5 DSGVO) gespeichert.
+- [x] `pgadmin`: Eine Benutzeroberfläche zur Verwaltung der Postgres Datenbanken.
 
 
-## Start the docker container
-The file `docker-compose.yml` contains an **configuration example** how to deploy the REST API as docker container. It is recommended to add this repository as git submodule to an deployment repository with a central Docker Compose configuration that suits your needs. 
+## Starte die Docker Container
+Die `*.yml` Dateien enthalten die Container Konfigurationen der o.g. Dienste.
+Die Datei `example.env.sh` enthält beispielhaft Umgebungsvariablen, die je nach Betriebsszenario anzupassen sind.
 
 ```bash
-# Host Server's Port Settings
-export DBAUTH_HOSTPORT=55014
-export DBAPPL_HOSTPORT=55015
-export PGADMIN_HOSTPORT=55016
-
-# Postgres Settings
-export DBAPPL_PASSWORD=password1234
-export DBAUTH_PASSWORD=password1234
-# Persistent Storage
+# load environment variables
+set -a
 #rm -rf tmp
-mkdir -p tmp/{data_evidence,data_userdb}
-export DBAPPL_PERSISTENT=./tmp/data_evidence
-export DBAUTH_PERSISTENT=./tmp/data_userdb
+source example.env.sh
 
-# PgAdmin Settings
-export PGADMIN_EMAIL=test@mail.com
-export PGADMIN_PASSWORD=password1234
-
+# start containers
 docker compose -p evidence \
     -f network.yml -f dbappl.yml -f dbauth.yml -f pgadmin.yml up --build
+
+# add workers to citus db
 docker-compose -p evidence scale worker=2
 ```
 
-## Insert Demo Data
-The demonstration data is not inserted during setup.
-Please run the following commands.
+(Bitte betrachte Umgebungsvariablen in `example.env.sh`, da diese in den nachfolgenden Erläuterung wieder auftauchen.)
+
+
+## Füge Demo Daten ein
+In `dbauth.yml` und `dbappl.yml` werden SQL Tabellen, Funktionen und Trigger installiert falls diese nicht existieren. Bereits vorhanden Daten (Persistent Data) werden dadurch nicht überschrieben oder aus Versehen gelöscht.
+
+Zu Demonstrationszwecken können in die leere Datenbank ein paar Spielzeugdaten eingespielt werden:
 
 ```sh
 psql --host=127.0.0.1 --port=55014 --username=postgres -f dbauth/demo/019-auth.sql
@@ -45,56 +43,17 @@ psql --host=127.0.0.1 --port=55015 --username=postgres -f dbappl/demo/029-eviden
 ```
 
 
-
-2. Öffne das pgAdmin Dashboard im Browser [localhost:8889](http://localhost:8889/)
-
-3. Klicke auf "Add New Server". Die IP Adresse des Postgres Container wird benötigt als "Host name/address", welche wie folgt ermittelt werden kann:
-
-```
-contid=$(docker container ls | grep citus | awk '{print $1}')
-docker inspect ${contid} | grep IPAddress
-```
-
-4. Logge Dich vom Host aus in die Datenbank ein
-
-```bash
-psql --host=127.0.0.1 --port=55015 --username=postgres
-```
-
-oder lasse das SQL Installationsskript laufen 
-
-```bash
-cd psql-setup
-psql --host=127.0.0.1 --port=55015 --username=postgres -f install.sql
-cd ..
-```
-
-## User Management
-Im Schema `auth.` wurde eine rudimentäre passwort-basierte Authentifizierung mit den folgenden Befehlen implementiert.
-
-- Neuen Account manuell erstellen: `SELECT auth.add_user('newusername', 'secretpw');`  
-- Account valideren: `SELECT auth.validate_user('newusername', 'secretpw');` (True wenn Login korrekt; In FastAPI kann der Login dann abbrechen, wenn False)
-- Status des Accounts abfragen: `SELECT auth.is_active_user('newusername');` (True wenn aktiv; In FastAPI kann der Login dann abbrechen, wenn False)
+## pgAdmin einrichten
+- Öffne das pgAdmin Dashboard im Browser [localhost:55016](http://localhost:55016/)
+- Siehe `example.env.sh` für die Loginangaben
+- Klicke auf "Add New Server". Die IP Adresse des Citus `manager` Container wird benötigt (172.20.253.4).
 
 
-## Login via pgAdmin
-pgAdmin ist innerhalb des Docker network `evidence-backend-network` erreichbar.
+## Backup und Wiederherstellung
+Das *Backup* sollte im Datenbank-Container durchgeführt werden, 
+d.h. `pg_dump` wird im Container ausgeführt und die Daten zum Host weitergeleitet.
+Der Grund ist, dass das Program `pg_dump` auf dem Host nicht zwingend dieselbe Hauptversion wie die Postgres Datenbank im Container haben muss.
 
-- Login: 
-    - username: `test@mail.com`
-    - password: `password1234`
-- Database:
-    - host: `172.20.253.5`
-    - post: `5432`
-    - username: `postgres`
-    - password: `password1234`
-
-
-## Backup and Recovery
-In order to avoid the common version conflict problem, 
-it is recommended to `pg_dump` within the deployed container.
-
-Backup
 ```sh
 suffix=$(date +"%Y-%m-%dT%H-%M")
 #container_name=database_evidence-database_1
@@ -104,18 +63,11 @@ docker exec -i ${container_name} \
     | gzip -9 > "postgres-${suffix}.sql.gz"
 ```
 
-Recovery
+Zur *Wiederherstellung* wird das Archiv vom Host in den Datenbankcontainer weitergeleitet, 
+und im Container von `psql` als Input benutzt.
+
 ```sh
 gunzip -c "postgres-${suffix}.sql.gz" | docker exec -i ${container_name} \
     psql --username=postgres -d postgres 
 ```
 
-
-## Export BWS evaluations
-
-```sh
-SELECT * FROM evidence.evaluated_bestworst LIMIT 5;
-SELECT * FROM evidence.example_items LIMIT 5;
-SELECT * FROM evidence.sentences_cache LIMIT 5;
-SELECT * FROM evidence.score_history LIMIT 5;
-```

@@ -15,8 +15,8 @@ SELECT auth.validate_email_password2('test123@example.com', 'secret3');
 SELECT auth.email_isactive(auth.lookup_userid_by_email('test123@example.com'));
 SELECT * FROM auth.emails;
 -- Verify
-SELECT auth.issue_verify_token(auth.lookup_userid_by_email('test123@example.com'));
+SELECT auth.issue_verification_token(auth.lookup_userid_by_email('test123@example.com'));
 SELECT * FROM auth.verify;
-SELECT auth.verify_token(auth.issue_verify_token(auth.lookup_userid_by_email('test123@example.com')));
+SELECT auth.check_verification_token(auth.issue_verification_token(auth.lookup_userid_by_email('test123@example.com')));
 SELECT * FROM auth.verify;
 SELECT * FROM auth.emails;
