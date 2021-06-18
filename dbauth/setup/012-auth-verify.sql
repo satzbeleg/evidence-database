@@ -85,7 +85,7 @@ CREATE TRIGGER trg_purge_old_verification_tokens
 -- -----------------------------------------------------------------------
 
 -- Issue a verification token with
-CREATE FUNCTION auth.issue_verify_token(the_user_id uuid) 
+CREATE FUNCTION auth.issue_verification_token(the_user_id uuid) 
   RETURNS uuid AS 
 $$
 DECLARE
@@ -101,8 +101,9 @@ $$
 LANGUAGE plpgsql
 ;
 
+
 -- Verify token
-CREATE FUNCTION auth.verify_token(the_token uuid) 
+CREATE FUNCTION auth.check_verification_token(the_token uuid) 
   RETURNS text AS 
 $$
 DECLARE
