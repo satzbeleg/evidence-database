@@ -16,7 +16,7 @@ services:
       - "${DBAPPL_HOSTPORT:-5432}:5432"   # 55015
     volumes: 
       - ${DBAPPL_PERSISTENT}:/var/lib/postgresql/data   # Persistent on SSD/HDD
-      - ${DBAPPL_PATH:-.}/dbappl/setup/:/docker-entrypoint-initdb.d/   # installation scripts
+      - ${DATABASE_PATH:-.}/dbappl/setup/:/docker-entrypoint-initdb.d/   # installation scripts
     networks:
       evidence-network:
         ipv4_address: 172.20.253.5
