@@ -18,7 +18,7 @@
 -- (A) REQUIRED TYPES
 -- -----------------------------------------------------------------------
 
-CREATE TYPE IF NOT EXISTS
+CREATE TYPE
 auth.provider_t AS ENUM ('google')
 ;
 
@@ -43,12 +43,12 @@ auth.linkedoauth (
 -- Unique Keys
 -- Also Search: WHERE user_id=??? AND provider_name=???
 CREATE UNIQUE INDEX CONCURRENTLY "uk_linkedoauth_1" 
-  ON auth.emails USING BTREE (user_id, provider_name)
+  ON auth.linkedoauth USING BTREE (user_id, provider_name)
 ;
 
 -- Never store the accountID twice for a given provider
 CREATE UNIQUE INDEX CONCURRENTLY "uk_linkedoauth_2" 
-  ON auth.emails USING BTREE (provider_name, account_id)
+  ON auth.linkedoauth USING BTREE (provider_name, account_id)
 ;
 
 -- Find all providers linked with user_id
@@ -100,14 +100,14 @@ BEGIN
   -- (1) Lookup up ('google', gid) in auth.linkedoauth 
   the_user_id := (SELECT user_id FROM auth.linkedoauth 
                   WHERE provider_name='google' AND account_id=the_gid);
-  IF EXISTS(the_user_id) THEN
+  IF the_user_id IS NOT NULL THEN
     RETURN the_user_id;
   END IF;
 
   -- (2) Lookup up (email) in auth.emails 
   the_user_id := (SELECT auth.lookup_userid_by_email(the_email));
 
-  IF NOT EXISTS(the_user_id) THEN
+  IF the_user_id IS NULL THEN
     -- Add (email, random pw, isactive=t) to auth.emails
     INSERT INTO auth.emails(email, hashed_password, isactive) 
     VALUES (the_email::auth.email_t, sha512((random()::text)::bytea), TRUE)
