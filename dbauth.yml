@@ -14,7 +14,7 @@ services:
       - "${DBAUTH_HOSTPORT:-5432}:5432"   # 55014
     volumes: 
       - ${DBAUTH_PERSISTENT}:/var/lib/postgresql/data   # Persistent on SSD/HDD
-      - ${DBAUTH_PATH:-.}/dbauth/setup/:/docker-entrypoint-initdb.d/   # installation scripts
+      - ${DATABASE_PATH:-.}/dbauth/setup/:/docker-entrypoint-initdb.d/   # installation scripts
     networks:
       evidence-network:
         ipv4_address: 172.20.253.7

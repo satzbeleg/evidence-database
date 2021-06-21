@@ -22,8 +22,9 @@ set -a
 source example.env.sh
 
 # start containers
-docker compose -p evidence \
-    -f network.yml -f dbappl.yml -f dbauth.yml -f pgadmin.yml up --build
+# - WARNING: Don't use the `docker compose` because it cannot process `ipv4_address`!
+docker-compose -p evidence \
+    -f network.yml -f dbauth.yml -f dbappl.yml-f pgadmin.yml up --build
 
 # add workers to citus db
 docker-compose -p evidence scale worker=2
