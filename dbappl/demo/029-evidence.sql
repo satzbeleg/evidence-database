@@ -119,3 +119,11 @@ INSERT INTO evidence.example_items (sentence_id, lemma, context, score)
 ON CONFLICT DO NOTHING
 ;
 
+
+-- Insert fake feature vectors
+INSERT INTO zdlstore.feature_vectors (sentence_id, model_info, feature_vectors)
+SELECT sentence_id
+     , '{"model": "random-demo-features", "version": "0.1.2"}'::jsonb
+     , (select array_agg((2.0 * random() - 1.0)::real) from generate_series (0, 567))::real[]
+FROM zdlstore.sentences_cache
+;

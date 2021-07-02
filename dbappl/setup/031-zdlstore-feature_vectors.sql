@@ -34,22 +34,22 @@
 -- -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS 
 zdlstore.feature_vectors (
-    feature_vectors_id  uuid DEFAULT uuid_generate_v4()
+    feature_vector_id  uuid DEFAULT uuid_generate_v4()
   -- Unique Key
   , sentence_id     uuid NOT NULL
   , model_info      jsonb NOT NULL
   -- data
-  , feature_vectors  jsonb NOT NULL
+  , feature_vectors  real[] NOT NULL
   , PRIMARY KEY(feature_vector_id)
 );
 
 
 -- key
 CREATE UNIQUE INDEX CONCURRENTLY "uk_feature_vector_1" 
-  ON zdlstore.feature_vector USING BTREE (sentence_id, model_info)
+  ON zdlstore.feature_vectors USING BTREE (sentence_id, model_info)
 ;
 
 -- search by: sentence_id
 CREATE INDEX CONCURRENTLY "bt_feature_vector_2" 
-  ON zdlstore.feature_vector USING BTREE (sentence_id)
+  ON zdlstore.feature_vectors USING BTREE (sentence_id)
 ; -- for "="
