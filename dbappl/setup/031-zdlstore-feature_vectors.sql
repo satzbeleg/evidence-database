@@ -40,6 +40,9 @@ zdlstore.feature_vectors (
   , model_info      jsonb NOT NULL
   -- data
   , feature_vectors  real[] NOT NULL
+  -- documentation
+  , created_at     timestamp NOT NULL default CURRENT_TIMESTAMP
+  , created_by     text NOT NULL default CURRENT_USER
   , PRIMARY KEY(feature_vector_id)
 );
 
