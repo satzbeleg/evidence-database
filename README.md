@@ -13,13 +13,13 @@ Es sind zwei Datenbankensysteme und ein Verwaltungsdienst hier konfiguriert.
 
 ## Starte die Docker Container
 Die `*.yml` Dateien enthalten die Container Konfigurationen der o.g. Dienste.
-Die Datei `example.env.sh` enthält beispielhaft Umgebungsvariablen, die je nach Betriebsszenario anzupassen sind.
+Die Datei `defaults.env.sh` enthält beispielhaft Umgebungsvariablen, die je nach Betriebsszenario anzupassen sind.
 
 ```bash
 # load environment variables
 set -a
 #rm -rf tmp
-source example.env.sh
+source defaults.env.sh
 
 # start containers
 # - WARNING: Don't use the `docker compose` because it cannot process `ipv4_address`!
@@ -30,7 +30,7 @@ docker-compose -p evidence \
 docker-compose -p evidence scale worker=2
 ```
 
-(Bitte betrachte Umgebungsvariablen in `example.env.sh`, da diese in den nachfolgenden Erläuterung wieder auftauchen.)
+(Bitte betrachte Umgebungsvariablen in `defaults.env.sh`, da diese in den nachfolgenden Erläuterung wieder auftauchen.)
 
 
 ## Füge Demo Daten ein
@@ -46,7 +46,7 @@ psql --host=127.0.0.1 --port=55015 --username=postgres -f dbappl/demo/029-eviden
 
 ## pgAdmin einrichten
 - Öffne das pgAdmin Dashboard im Browser [localhost:55016](http://localhost:55016/)
-- Siehe `example.env.sh` für die Loginangaben
+- Siehe `defaults.env.sh` für die Loginangaben
 - Klicke auf "Add New Server". Die IP Adresse des Citus `manager` Container wird benötigt (172.20.253.4).
 
 
