@@ -12,7 +12,7 @@
 CREATE TABLE IF NOT EXISTS 
 evidence.evaluated_bestworst (
     set_id      uuid NOT NULL
-  , username    text NOT NULL
+  , user_id     uuid NOT NULL
   , ui_name     text NOT NULL
   -- data
   , lemmata           text[] DEFAULT NULL
@@ -26,9 +26,9 @@ evidence.evaluated_bestworst (
   , PRIMARY KEY(set_id)
 );
 
--- search by: username, ui_name, lemmata
+-- search by: user_id, ui_name, lemmata
 CREATE INDEX CONCURRENTLY "bt_evaluated_bestworst_1" 
-  ON evidence.evaluated_bestworst USING BTREE (username)
+  ON evidence.evaluated_bestworst USING BTREE (user_id)
 ; -- for "="
 
 CREATE INDEX CONCURRENTLY "bt_evaluated_bestworst_2" 
@@ -57,8 +57,8 @@ CREATE INDEX CONCURRENTLY "gin_evaluated_bestworst_6"
 COMMENT ON COLUMN evidence.evaluated_bestworst.set_id IS 
   'UUID4 of the example set (Satzgruppe). It is the primary key but generated externally by Evidence REST API.'
 ;
-COMMENT ON COLUMN evidence.evaluated_bestworst.username IS 
-  'Unique username from an authentification database. Currently the app uses `auth.users.username` what is planned to be replaced by an DWDS Auth API.'
+COMMENT ON COLUMN evidence.evaluated_bestworst.user_id IS 
+  'Unique user_id from an authentification database. Currently the app uses `auth.users.user_id` what is planned to be replaced by an DWDS Auth API.'
 ;
 COMMENT ON COLUMN evidence.evaluated_bestworst.ui_name IS 
   'Refers to Vue3 View component of the Evidence WebApp.'
