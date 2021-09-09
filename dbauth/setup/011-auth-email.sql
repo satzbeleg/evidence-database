@@ -44,7 +44,7 @@ CREATE DOMAIN auth.email_t AS text
 
 -- setup the table again
 CREATE TABLE IF NOT EXISTS
-auth.emails (   -- LEGACY!
+auth.emails (
   -- automatic immutable fields
     user_id        uuid DEFAULT uuid_generate_v4()
   -- mutable fields
