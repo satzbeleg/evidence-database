@@ -1,12 +1,6 @@
 -- 
 -- Add test accounts (Don't delete!)
 -- 
-SELECT auth.add_user('testuser2', 'secret2');
-
--- Query
-SELECT * FROM auth.users;
-
-
 
 -- Email
 SELECT auth.add_new_email_account('test123@example.com', 'secret3');
