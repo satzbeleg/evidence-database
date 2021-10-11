@@ -76,7 +76,7 @@ cat dbappl/demo/029-evidence.sql | docker exec -i evidence-dbappl_master psql --
 
 
 ### Backup and Recovery
-The * backup * should be carried out in the database container, i.e. `pg_dump` is executed in the container and the data is forwarded to the host.
+The *backup* should be carried out in the database container, i.e. `pg_dump` is executed in the container and the data is forwarded to the host.
 The reason is that the program `pg_dump` on the host might not have to have the same major version as the Postgres database in the container.
 
 ```sh
