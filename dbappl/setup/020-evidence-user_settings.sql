@@ -19,7 +19,7 @@ CREATE INDEX CONCURRENTLY "gin_user_settings_2"
   ON evidence.user_settings USING GIN (settings jsonb_path_ops)
 ;
 
--- Kommentare
+-- column descriptions
 COMMENT ON COLUMN evidence.user_settings.row_id IS 
   'Internal primary key (UUID4) of the table for SQL purposes (e.g. join, foreign key). In our case this row_id has no meaning'
 ;

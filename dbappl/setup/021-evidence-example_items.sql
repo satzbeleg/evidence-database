@@ -62,7 +62,7 @@ CREATE INDEX CONCURRENTLY "gin_example_items_4"
 ;
 
 
--- Kommentare
+-- column descriptions
 COMMENT ON COLUMN evidence.example_items.item_id IS 
   'Internal primary key (UUID4) of the table for SQL purposes (e.g. join, foreign key).'
 ;
