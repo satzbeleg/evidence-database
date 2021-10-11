@@ -251,10 +251,10 @@ LANGUAGE plpgsql
 -- 
 -- EXAMPLE
 -- -------
---    SELECT * FROM evidence.query_by_lemmata('{impeachment,Nixon}'::text[], NULL, NULL);
---    SELECT * FROM evidence.query_by_lemmata('{impeachment}'::text[], NULL, NULL);
---    SELECT * FROM evidence.query_by_lemmata('{impeachment}'::text[], 5, 3);
---    SELECT * FROM evidence.query_by_lemmata('{impeachment}'::text[], 5, 3) ORDER BY RANDOM() LIMIT 4;
+--    SELECT * FROM evidence.query_by_lemmata('{Fahrrad,Rahmen}'::text[], NULL, NULL);
+--    SELECT * FROM evidence.query_by_lemmata('{Fahrrad}'::text[], NULL, NULL);
+--    SELECT * FROM evidence.query_by_lemmata('{Fahrrad}'::text[], 5, 3);
+--    SELECT * FROM evidence.query_by_lemmata('{Fahrrad}'::text[], 5, 3) ORDER BY RANDOM() LIMIT 4;
 --    SELECT * FROM evidence.query_by_lemmata('{}'::text[], 5, 3);
 -- 
 -- DROP FUNCTION IF EXISTS evidence.query_by_lemmata;
@@ -288,7 +288,7 @@ BEGIN
             WHERE (
               CASE
                 WHEN array_length(searchlemmata::text[], 1) IS NULL THEN true
-                ELSE tb0.lemma = ANY(searchlemmata::text[])
+                ELSE tb0.lemma LIKE ANY(searchlemmata::text[])
                 -- ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
                 --         searchlemmata::text[]))
               END)

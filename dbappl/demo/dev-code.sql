@@ -16,9 +16,10 @@ FROM (
         FROM evidence.example_items tb0
         WHERE (
             CASE
-                WHEN array_length('{Impeachment,Nixon}'::text[], 1) IS NULL THEN true
-                ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
-                    '{Impeachment,Nixon}'::text[]))
+                WHEN array_length('{Fahrrad,Rahmen}'::text[], 1) IS NULL THEN true
+                ELSE tb0.lemma LIKE ANY('{Fahrrad,Rahmen}'::text[])
+                -- ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
+                --     '{Fahrrad,Rahmen}'::text[]))
             END)
         ORDER BY tb0.sentence_id, tb0.lemma
     ) tb1
@@ -26,8 +27,8 @@ FROM (
 ) tb2
 WHERE (
     CASE
-        WHEN array_length('{Impeachment,Nixon}'::text[], 1) IS NULL THEN true
-        ELSE tb2.count = array_length('{Impeachment,Nixon}'::text[], 1)
+        WHEN array_length('{Fahrrad,Rahmen}'::text[], 1) IS NULL THEN true
+        ELSE tb2.count = array_length('{Fahrrad,Rahmen}'::text[], 1)
     END)
 ORDER BY tb2.score DESC
 LIMIT NULL OFFSET 1
