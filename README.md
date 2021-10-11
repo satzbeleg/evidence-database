@@ -42,6 +42,7 @@ rm -rf tmp
 # load environment variables
 set -a
 source defaults.env.sh
+# source secret.env.sh
 
 # start containers
 # - WARNING: Don't use the `docker compose` because it cannot process `ipv4_address`!
@@ -59,12 +60,12 @@ In `dbauth.yml` and` dbappl.yml` SQL tables, functions and triggers are installe
 A few toy data can be imported into the empty database for demonstration purposes:
 
 ```sh
-psql --host=127.0.0.1 --port=55014 --username=postgres -f dbauth/demo/019-auth.sql
-psql --host=127.0.0.1 --port=55015 --username=postgres -f dbappl/demo/029-evidence.sql
+psql --host=127.0.0.1 --port=55014 --username=postgres -f dbauth/demo/test-user-for-app-demo.sql
+psql --host=127.0.0.1 --port=55015 --username=postgres -f dbappl/demo/toy-data-for-app-demo.sql
 
 # or
-cat dbauth/demo/019-auth.sql | docker exec -i evidence-dbauth psql --username=postgres
-cat dbappl/demo/029-evidence.sql | docker exec -i evidence-dbappl_master psql --username=postgres
+cat dbauth/demo/test-user-for-app-demo.sql | docker exec -i evidence-dbauth psql --username=postgres
+cat dbappl/demo/toy-data-for-app-demo.sql | docker exec -i evidence-dbappl_master psql --username=postgres
 ```
 
 
@@ -75,7 +76,7 @@ cat dbappl/demo/029-evidence.sql | docker exec -i evidence-dbappl_master psql --
 
 
 ### Backup and Recovery
-The * backup * should be carried out in the database container, i.e. `pg_dump` is executed in the container and the data is forwarded to the host.
+The *backup* should be carried out in the database container, i.e. `pg_dump` is executed in the container and the data is forwarded to the host.
 The reason is that the program `pg_dump` on the host might not have to have the same major version as the Postgres database in the container.
 
 ```sh

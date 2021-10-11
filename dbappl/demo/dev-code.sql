@@ -16,9 +16,10 @@ FROM (
         FROM evidence.example_items tb0
         WHERE (
             CASE
-                WHEN array_length('{impeachment,Nixon}'::text[], 1) IS NULL THEN true
-                ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
-                    '{impeachment,Nixon}'::citext[]))
+                WHEN array_length('{Fahrrad,Rahmen}'::text[], 1) IS NULL THEN true
+                ELSE tb0.lemma LIKE ANY('{Fahrrad,Rahmen}'::text[])
+                -- ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
+                --     '{Fahrrad,Rahmen}'::text[]))
             END)
         ORDER BY tb0.sentence_id, tb0.lemma
     ) tb1
@@ -26,8 +27,8 @@ FROM (
 ) tb2
 WHERE (
     CASE
-        WHEN array_length('{impeachment,Nixon}'::text[], 1) IS NULL THEN true
-        ELSE tb2.count = array_length('{impeachment,Nixon}'::text[], 1)
+        WHEN array_length('{Fahrrad,Rahmen}'::text[], 1) IS NULL THEN true
+        ELSE tb2.count = array_length('{Fahrrad,Rahmen}'::text[], 1)
     END)
 ORDER BY tb2.score DESC
 LIMIT NULL OFFSET 1
@@ -50,7 +51,7 @@ FROM (
             CASE
                 WHEN array_length('{}'::text[], 1) IS NULL THEN true
                 ELSE tb0.lemma LIKE ANY(evidence.add_wildcards_to_text_array_element(
-                    '{}'::citext[]))
+                    '{}'::text[]))
             END)
         ORDER BY tb0.sentence_id, tb0.lemma
     ) tb1
@@ -71,10 +72,10 @@ LIMIT NULL OFFSET 1
 -- How to save evaluated example sets for BWS-UIs
 -- 
 INSERT INTO evidence.evaluated_bestworst(
-    username, ui_name, set_id, lemmata, event_history, state_sentid_map) 
+    user_id, ui_name, set_id, lemmata, event_history, state_sentid_map) 
 VALUES
     (
-        'testuser456'::text, 
+        '78440e64-868a-4896-821d-390327c15ab2'::uuid, 
         'bestworst4'::text, 
         uuid_generate_v4()::uuid, 
         '{"lemma1", "lemma2"}'::text[], 
@@ -82,7 +83,7 @@ VALUES
         '{"0": "idA", "1": "idB"}'::jsonb
     ),
     (
-        'testuser456'::text, 
+        '78440e64-868a-4896-821d-390327c15ab2'::uuid, 
         'bestworst5'::text, 
         uuid_generate_v4()::uuid, 
         '{"hello", "lemma2"}'::text[], 
@@ -90,7 +91,7 @@ VALUES
         '{"0": "idB", "1": "idC"}'::jsonb
     ),
     (
-        'testuser789'::text, 
+        '78440e64-868a-4896-821d-390327c15ab2'::uuid, 
         'bestworst4'::text, 
         uuid_generate_v4()::uuid, 
         '{"lemma1", "world"}'::text[], 
