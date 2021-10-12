@@ -126,5 +126,5 @@ LIMIT 100
 ; 
 
 
--- lösche lemma mit Zahlen
+-- Remove lemma with numbers
 delete from evidence.example_items where lemma ~ '^[0-9\.]+$';
