@@ -42,7 +42,7 @@ rm -rf tmp
 # load environment variables
 set -a
 source defaults.env.sh
-# source secret.env.sh
+# source specific.env.sh
 
 # start containers
 # - WARNING: Don't use the `docker compose` because it cannot process `ipv4_address`!
