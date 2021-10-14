@@ -53,7 +53,7 @@ CREATE INDEX CONCURRENTLY "gin_evaluated_bestworst_6"
 ;
 
 
--- Kommentare
+-- Comments
 COMMENT ON COLUMN evidence.evaluated_bestworst.set_id IS 
   'UUID4 of the example set (Satzgruppe). It is the primary key but generated externally by Evidence REST API.'
 ;
