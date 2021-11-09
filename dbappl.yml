@@ -4,7 +4,7 @@ services:
   # see https://github.com/citusdata/docker/blob/master/docker-compose.yml
   master:
     container_name: "evidence-dbappl_master"
-    image: 'citusdata/citus:10.0.3'
+    image: 'citusdata/citus:10.2-pg13'
     labels: ['com.citusdata.role=Master']
     environment: &AUTH
       POSTGRES_USER: ${DBAPPL_USER:-postgres}
@@ -29,7 +29,7 @@ services:
 
   worker:
     depends_on: [ manager ]
-    image: 'citusdata/citus:10.0.3'
+    image: 'citusdata/citus:10.2-pg13'
     labels: ['com.citusdata.role=Worker']
     environment: *AUTH
     command: "/wait-for-manager.sh"
