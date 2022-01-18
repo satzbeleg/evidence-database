@@ -23,15 +23,12 @@ The repository contains the docker configuration of two database systems and a U
     - The application database does **not** store permanently *direkte personenbezogenen Daten* (DSGVO). Otherwise further functionalities have to be implemented (e.g. deletion requests of direct personal data).
     - The application database can store **temporarily** *direkte personenbezogenen Daten* (DSGVO) for sole purpose of a non-commercial research project, e.g. user surveys with the informed consent that provided data can be published under CC-* license.
     - The application stores `user_id` permanently as *Pseudonym* (Art. 4 Nr. 5 DSGVO).
-- `pgadmin.yml`: 
-    - A user interface to manage the Postgres databases.
 
 
 ## Local Development
 1. [Build Docker Containers](#build-docker-containers)
 2. [Import Demo Data](#import-demo-data)
-3. [Setup pgAdmin](#setup-pgadmin)
-4. [Backup and Recovery](#backup-and-recovery)
+3. [Backup and Recovery](#backup-and-recovery)
 
 ### Build Docker Containers
 The `* .yml` files contain the container configurations of the services mentioned above.
@@ -49,7 +46,7 @@ source defaults.env.sh
 # start containers
 # - WARNING: Don't use the `docker compose` because it cannot process `ipv4_address`!
 docker-compose -p evidence \
-    -f network.yml -f dbauth.yml -f dbappl.yml -f pgadmin.yml up --build
+    -f network.yml -f dbauth.yml -f dbappl.yml up --build
 
 # add workers to citus db
 docker-compose -p evidence -f network.yml -f dbappl.yml scale worker=3
@@ -69,12 +66,6 @@ psql --host=127.0.0.1 --port=55015 --username=postgres -f dbappl/demo/toy-data-f
 cat dbauth/demo/test-user-for-app-demo.sql | docker exec -i evidence-dbauth psql --username=postgres
 cat dbappl/demo/toy-data-for-app-demo.sql | docker exec -i evidence-dbappl_master psql --username=postgres
 ```
-
-
-### Setup pgAdmin
-- Open the pgAdmin dashboard in the browser, e.g. [localhost:55016](http://localhost:55016/)
-- Check `defaults.env.sh` for the login credentials
-- Click on "Add New Server". The IP address of the Citus `manager` container is required (172.20.253.4).
 
 
 ### Backup and Recovery
