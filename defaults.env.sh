@@ -1,8 +1,8 @@
 #!/bin/bash 
 
 # Host Server's Port Settings
-export DBAUTH_HOSTPORT=55014
-export DBAPPL_HOSTPORT=55015
+# export DBAUTH_HOSTPORT=?????
+# export DBAPPL_HOSTPORT=?????
 
 # Postgres Settings
 export DBAPPL_PASSWORD=password1234

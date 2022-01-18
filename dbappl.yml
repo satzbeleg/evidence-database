@@ -12,8 +12,8 @@ services:
       PGUSER: ${DBAPPL_USER:-postgres}
       PGPASSWORD: ${DBAPPL_PASSWORD}
       POSTGRES_HOST_AUTH_METHOD: trust
-    ports:
-      - "${DBAPPL_HOSTPORT:-5432}:5432"   # 55015
+    # ports:
+    #   - "${DBAPPL_HOSTPORT:-5432}:5432"
     user: "${LOCALUSER:-root}"  # align access rights btw. container and host
     volumes:
       - /etc/passwd:/etc/passwd:ro   # align access rights btw. container and host
