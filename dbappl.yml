@@ -4,7 +4,7 @@ services:
   # see https://github.com/citusdata/docker/blob/master/docker-compose.yml
   master:
     container_name: "evidence-dbappl_master"
-    image: 'citusdata/citus:10.0.3'
+    image: 'citusdata/citus:10.2-pg13'
     labels: ['com.citusdata.role=Master']
     environment: &AUTH
       POSTGRES_USER: ${DBAPPL_USER:-postgres}
@@ -14,7 +14,9 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "${DBAPPL_HOSTPORT:-5432}:5432"   # 55015
-    volumes: 
+    user: "${LOCALUSER:-root}"  # align access rights btw. container and host
+    volumes:
+      - /etc/passwd:/etc/passwd:ro   # align access rights btw. container and host
       - ${DBAPPL_PERSISTENT}:/var/lib/postgresql/data   # Persistent on SSD/HDD
       - ${DATABASE_PATH:-.}/dbappl/setup/:/docker-entrypoint-initdb.d/   # installation scripts
     networks:
@@ -29,7 +31,7 @@ services:
 
   worker:
     depends_on: [ manager ]
-    image: 'citusdata/citus:10.0.3'
+    image: 'citusdata/citus:10.2-pg13'
     labels: ['com.citusdata.role=Worker']
     environment: *AUTH
     command: "/wait-for-manager.sh"

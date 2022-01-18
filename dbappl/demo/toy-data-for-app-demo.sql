@@ -118,10 +118,10 @@ ON CONFLICT DO NOTHING
 ;
 
 
--- Insert fake feature vectors
+-- Insert fake feature vectors with 567 features
 INSERT INTO zdlstore.feature_vectors (sentence_id, model_info, feature_vectors)
 SELECT sentence_id
      , '{"model": "random-demo-features", "version": "0.1.2"}'::jsonb
-     , (select array_agg((2.0 * random() - 1.0)::real) from generate_series (0, 567))::real[]
+     , (select array_agg((2.0 * random() - 1.0)::real) from generate_series (1, 567))::real[]
 FROM zdlstore.sentences_cache
 ;
