@@ -10,8 +10,8 @@ services:
       PGUSER: ${DBAUTH_USER:-postgres}
       PGPASSWORD: ${DBAUTH_PASSWORD}
       POSTGRES_HOST_AUTH_METHOD: trust
-    ports:
-      - "${DBAUTH_HOSTPORT:-5432}:5432"   # 55014
+    # ports:
+    #   - "${DBAUTH_HOSTPORT:-5432}:5432"
     user: "${LOCALUSER:-root}"  # align access rights btw. container and host
     volumes:
       - /etc/passwd:/etc/passwd:ro   # align access rights btw. container and host
