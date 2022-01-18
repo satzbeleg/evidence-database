@@ -1,4 +1,4 @@
-version: '3.9'
+version: '3.7'
 
 services:
   # see https://github.com/citusdata/docker/blob/master/docker-compose.yml
@@ -19,9 +19,9 @@ services:
       - /etc/passwd:/etc/passwd:ro   # align access rights btw. container and host
       - ${DBAPPL_PERSISTENT}:/var/lib/postgresql/data   # Persistent on SSD/HDD
       - ${DATABASE_PATH:-.}/dbappl/setup/:/docker-entrypoint-initdb.d/   # installation scripts
-    networks:
-      evidence-network:
-        ipv4_address: 172.20.253.5
+    networks: [ evidence-network ]  # dynamic IPs!
+    # evidence-network:
+    #     ipv4_address: 172.20.253.5
     deploy:
       restart_policy:
         condition: on-failure
@@ -47,9 +47,9 @@ services:
       - ${DBAPPL_DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock
       - healthcheck-volume:/healthcheck
     environment: *AUTH
-    networks:
-      evidence-network:
-        ipv4_address: 172.20.253.4
+    networks: [ evidence-network ]  # dynamic IPs!
+    # evidence-network:
+    #     ipv4_address: 172.20.253.4
     deploy:
       restart_policy:
         condition: on-failure

@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.7'
 
 services:
   evidence-dbauth:
@@ -17,9 +17,9 @@ services:
       - /etc/passwd:/etc/passwd:ro   # align access rights btw. container and host
       - ${DBAUTH_PERSISTENT}:/var/lib/postgresql/data   # Persistent on SSD/HDD
       - ${DATABASE_PATH:-.}/dbauth/setup/:/docker-entrypoint-initdb.d/   # installation scripts
-    networks:
-      evidence-network:
-        ipv4_address: 172.20.253.7
+    networks: [ evidence-network ]  # dynamic IPs!
+    # evidence-network:
+    #     ipv4_address: 172.20.253.7
     deploy:
       restart_policy:
         condition: on-failure
