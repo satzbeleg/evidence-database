@@ -14,7 +14,9 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "${DBAPPL_HOSTPORT:-5432}:5432"   # 55015
-    volumes: 
+    user: "${LOCALUSER:-root}"  # align access rights btw. container and host
+    volumes:
+      - /etc/passwd:/etc/passwd:ro   # align access rights btw. container and host
       - ${DBAPPL_PERSISTENT}:/var/lib/postgresql/data   # Persistent on SSD/HDD
       - ${DATABASE_PATH:-.}/dbappl/setup/:/docker-entrypoint-initdb.d/   # installation scripts
     networks:
