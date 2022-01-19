@@ -92,5 +92,5 @@ gunzip -c "postgres-${suffix}.sql.gz" | docker exec -i ${container_name} \
 Please [open an issue](https://github.com/satzbeleg/evidence-database/issues/new) for support.
 
 ### Contributing
-Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/satzbeleg/evidence-database/compare/).
+Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/satzbeleg/evidence-database/compare/). You are asked to sign the CLA on your first pull request.
 
