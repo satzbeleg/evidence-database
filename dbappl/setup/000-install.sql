@@ -6,12 +6,12 @@
 -- 
 -- Load the extensions for the database
 -- 
-CREATE EXTENSION IF NOT EXISTS citus;
+-- CREATE EXTENSION IF NOT EXISTS citus;
 -- CREATE EXTENSION IF NOT EXISTS citext;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
--- CREATE EXTENSION btree_gist;
-CREATE EXTENSION pg_trgm;
-CREATE EXTENSION pgcrypto;
+-- CREATE EXTENSION IF NOT EXISTS btree_gist;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- 
 -- Create schemes
