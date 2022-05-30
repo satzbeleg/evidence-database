@@ -48,11 +48,11 @@ zdlstore.feature_vectors (
 
 
 -- key
-CREATE UNIQUE INDEX CONCURRENTLY "uk_feature_vector_1" 
+CREATE UNIQUE INDEX "uk_feature_vector_1" 
   ON zdlstore.feature_vectors USING BTREE (sentence_id, model_info)
 ;
 
 -- search by: sentence_id
-CREATE INDEX CONCURRENTLY "bt_feature_vector_2" 
+CREATE INDEX "bt_feature_vector_2" 
   ON zdlstore.feature_vectors USING BTREE (sentence_id)
 ; -- for "="

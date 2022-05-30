@@ -31,16 +31,16 @@ evidence.interactivity_deleted_episodes (
 );
 
 -- keys
-CREATE UNIQUE INDEX CONCURRENTLY "uk_interactivity_deleted_episodes_1" 
+CREATE UNIQUE INDEX "uk_interactivity_deleted_episodes_1" 
   ON evidence.interactivity_deleted_episodes USING BTREE (user_id, sentence_id, created_at)
 ;
 
 -- search by: user_id, sentence_id
-CREATE INDEX CONCURRENTLY "bt_interactivity_deleted_episodes_2" 
+CREATE INDEX "bt_interactivity_deleted_episodes_2" 
   ON evidence.interactivity_deleted_episodes USING BTREE (user_id)
 ; -- for "="
 
-CREATE INDEX CONCURRENTLY "bt_interactivity_deleted_episodes_3" 
+CREATE INDEX "bt_interactivity_deleted_episodes_3" 
   ON evidence.interactivity_deleted_episodes USING BTREE (sentence_id)
 ; -- for "="
 

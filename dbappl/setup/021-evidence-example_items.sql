@@ -44,20 +44,20 @@ evidence.example_items (
 );
 
 -- keys
-CREATE UNIQUE INDEX CONCURRENTLY "uk_example_items_1" 
+CREATE UNIQUE INDEX "uk_example_items_1" 
   ON evidence.example_items USING BTREE (sentence_id, lemma, context)
 ;
 
 -- search by: sentence_id, lemma, context
-CREATE INDEX CONCURRENTLY "bt_example_items_2" 
+CREATE INDEX "bt_example_items_2" 
   ON evidence.example_items USING BTREE (sentence_id)
 ; -- for "="
 
-CREATE INDEX CONCURRENTLY "bt_example_items_3" 
+CREATE INDEX "bt_example_items_3" 
   ON evidence.example_items USING BTREE (lemma)
 ; -- for "="
 
-CREATE INDEX CONCURRENTLY "gin_example_items_4" 
+CREATE INDEX "gin_example_items_4" 
   ON evidence.example_items USING GIN (context jsonb_path_ops)
 ;
 
@@ -96,7 +96,7 @@ evidence.score_history (
 );
 
 -- keys
-CREATE UNIQUE INDEX CONCURRENTLY "uk_score_history_1" 
+CREATE UNIQUE INDEX "uk_score_history_1" 
   ON evidence.score_history USING BTREE (item_id, score, created_at, model_info)
 ;
 

@@ -10,12 +10,12 @@ evidence.user_settings (
 );
 
 -- keys
-CREATE UNIQUE INDEX CONCURRENTLY "uk_user_settings_1" 
+CREATE UNIQUE INDEX "uk_user_settings_1" 
   ON evidence.user_settings USING BTREE (user_id)
 ; -- for "="
 
 -- search by: (user_id), settings
-CREATE INDEX CONCURRENTLY "gin_user_settings_2"
+CREATE INDEX "gin_user_settings_2"
   ON evidence.user_settings USING GIN (settings jsonb_path_ops)
 ;
 

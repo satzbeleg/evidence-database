@@ -59,18 +59,18 @@ auth.emails (
 );
 
 -- keys
-CREATE UNIQUE INDEX CONCURRENTLY "uk_emails_1" 
+CREATE UNIQUE INDEX "uk_emails_1" 
   ON auth.emails USING BTREE (email)
 ; -- for "="
 
 -- search: WHERE email=e AND hashed_password=pw
-CREATE INDEX CONCURRENTLY "bt_emails_2" 
+CREATE INDEX "bt_emails_2" 
   ON auth.emails USING BTREE (email, hashed_password)
 ; -- for "="
 
 -- search: WHERE isactive=0 AND created_at < (NOW()::timestamp - interval '24 hours')
 -- BRIN cannot deal with boolean
-CREATE INDEX CONCURRENTLY "brn_emails_3" 
+CREATE INDEX "brn_emails_3" 
   ON auth.emails USING BRIN (created_at)
 ;
 

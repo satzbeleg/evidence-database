@@ -37,20 +37,20 @@ zdlstore.sentences_cache (
 );
 
 -- key
-CREATE UNIQUE INDEX CONCURRENTLY "uk_sentences_cache_1" 
+CREATE UNIQUE INDEX "uk_sentences_cache_1" 
   ON zdlstore.sentences_cache USING BTREE (digest(sentence_text, 'sha512'::text))
 ;
 
 -- search by: (sentence_id), sentence_text
-CREATE INDEX CONCURRENTLY "gin_sentences_cache_2" 
+CREATE INDEX "gin_sentences_cache_2" 
   ON zdlstore.sentences_cache USING GIN (sentence_text gin_trgm_ops)
 ; -- for LIKE, ILIKE, ~ and ~* regex
 
-CREATE INDEX CONCURRENTLY "bt_sentences_cache_3" 
+CREATE INDEX "bt_sentences_cache_3" 
   ON zdlstore.sentences_cache USING BTREE (sentence_text)
 ; -- for "="
 
-CREATE INDEX CONCURRENTLY "gin_sentences_cache_4" 
+CREATE INDEX "gin_sentences_cache_4" 
   ON zdlstore.sentences_cache USING GIN (annotation jsonb_path_ops)
   WHERE annotation IS NOT NULL 
 ;

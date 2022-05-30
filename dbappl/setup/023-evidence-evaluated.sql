@@ -27,27 +27,27 @@ evidence.evaluated_bestworst (
 );
 
 -- search by: user_id, ui_name, lemmata
-CREATE INDEX CONCURRENTLY "bt_evaluated_bestworst_1" 
+CREATE INDEX "bt_evaluated_bestworst_1" 
   ON evidence.evaluated_bestworst USING BTREE (user_id)
 ; -- for "="
 
-CREATE INDEX CONCURRENTLY "bt_evaluated_bestworst_2" 
+CREATE INDEX "bt_evaluated_bestworst_2" 
   ON evidence.evaluated_bestworst USING BTREE (ui_name)
 ; -- for "="
 
-CREATE INDEX CONCURRENTLY "gin_evaluated_bestworst_3" 
+CREATE INDEX "gin_evaluated_bestworst_3" 
   ON evidence.evaluated_bestworst USING GIN (lemmata array_ops)
 ;
 
-CREATE INDEX CONCURRENTLY "gin_evaluated_bestworst_4" 
+CREATE INDEX "gin_evaluated_bestworst_4" 
   ON evidence.evaluated_bestworst USING GIN (event_history jsonb_path_ops)
   WHERE event_history IS NOT NULL
 ;
-CREATE INDEX CONCURRENTLY "gin_evaluated_bestworst_5" 
+CREATE INDEX "gin_evaluated_bestworst_5" 
   ON evidence.evaluated_bestworst USING GIN (state_sentid_map jsonb_path_ops)
   WHERE state_sentid_map IS NOT NULL
 ;
-CREATE INDEX CONCURRENTLY "gin_evaluated_bestworst_6" 
+CREATE INDEX "gin_evaluated_bestworst_6" 
   ON evidence.evaluated_bestworst USING GIN (tracking_data jsonb_path_ops)
   WHERE tracking_data IS NOT NULL
 ;
