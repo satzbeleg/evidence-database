@@ -40,19 +40,23 @@ auth.linkedoauth (
   , PRIMARY KEY(linkage_id)
 );
 
+
 -- Unique Keys
 -- Also Search: WHERE user_id=??? AND provider_name=???
+DROP INDEX IF EXISTS auth."uk_linkedoauth_1" ;
 CREATE UNIQUE INDEX "uk_linkedoauth_1" 
   ON auth.linkedoauth USING BTREE (user_id, provider_name)
 ;
 
 -- Never store the accountID twice for a given provider
+DROP INDEX IF EXISTS auth."uk_linkedoauth_2" ;
 CREATE UNIQUE INDEX "uk_linkedoauth_2" 
   ON auth.linkedoauth USING BTREE (provider_name, account_id)
 ;
 
 -- Find all providers linked with user_id
 -- Search: WHERE user_id=???
+DROP INDEX IF EXISTS auth."bt_linkedoauth_3" ;
 CREATE INDEX "bt_linkedoauth_3" 
   ON auth.linkedoauth USING BTREE (user_id)
 ;

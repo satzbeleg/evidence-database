@@ -23,6 +23,9 @@ BEGIN
     CREATE UNIQUE INDEX "uk_linkedoauth_1" ON auth.linkedoauth USING BTREE (user_id, provider_name) ;
     CREATE UNIQUE INDEX "uk_linkedoauth_2" ON auth.linkedoauth USING BTREE (provider_name, account_id) ;
     CREATE INDEX "bt_linkedoauth_3" ON auth.linkedoauth USING BTREE (user_id);
+    -- 020-userdata-user_settings.sql
+    DROP INDEX IF EXISTS userdata."uk_user_settings_1" ;
+    CREATE UNIQUE INDEX "uk_user_settings_1" ON userdata.user_settings USING BTREE (user_id) ;
 END;
 $$
 LANGUAGE plpgsql
