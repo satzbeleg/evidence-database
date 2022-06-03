@@ -16,13 +16,13 @@ Please follow the instruction of the [deployment repository](https://github.com/
 The repository contains configurations of two databases.
 
 - `dbauth/`: 
-    - A Postgres database for the authentication process (e.g. email for account recovery, passwords, Google ID for OAuth).
-    - `dbauth` does **not** store *application data* such as user settings! 
+    - A Postgres database `auth` for the authentication process (e.g. email for account recovery, passwords, Google ID for OAuth).
     - External applications only receive the `user_id`, which are random UUID4 strings, and thus represent *pseudonyms* according to Art. 4 No. 5 DSGVO (i.e. the `user_id` can be stored permanently in external applications because these are pseudonymized by design).
-- `dbappl/`: 
-    - A Postgres database to store application data.
-    - The application database does **not** store permanently *direkte personenbezogenen Daten* (DSGVO). Otherwise further functionalities have to be implemented (e.g. deletion requests of direct personal data).
-    - The application database can store **temporarily** *direkte personenbezogenen Daten* (DSGVO) for sole purpose of a non-commercial research project, e.g. user surveys with the informed consent that provided data can be published under CC-* license.
+    - It is also a datbase `userdata` included to store user settings.
+- `dbeval/`: 
+    - A Cassandra database to store the examples to evaluate and evaluation results
+    - The database does **not** store permanently *direkte personenbezogenen Daten* (DSGVO). Otherwise further functionalities have to be implemented (e.g. deletion requests of direct personal data).
+    - The database can store **temporarily** *direkte personenbezogenen Daten* (DSGVO) for sole purpose of a non-commercial research project, e.g. user surveys with the informed consent that provided data can be published under CC-* license.
     - The application stores `user_id` permanently as *Pseudonym* (Art. 4 Nr. 5 DSGVO).
 
 ## Appendix
