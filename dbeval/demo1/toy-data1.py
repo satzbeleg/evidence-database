@@ -42,7 +42,7 @@ for sent, headword, spans in data:
     query = (
         f"{query_start} ({example_id}, '{sent}', '{headword}', {spans}, "
         f"{features1}, {features2}, "
-        f"'{sentence_id}', '{license}', {initial_score});\n")
+        f"'{sentence_id}', '{license}', {initial_score}) IF NOT EXISTS;\n")
     fp.write(query)
 
 fp.close()
