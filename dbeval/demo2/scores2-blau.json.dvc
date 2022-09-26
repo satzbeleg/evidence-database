@@ -1,0 +1,4 @@
+outs:
+- md5: 463674b903a17463500fea3ce81b4ae0
+  size: 280096
+  path: scores2-blau.json
