@@ -13,6 +13,7 @@ for FILE in glob.glob("./dbeval/demo2/*.json"):
     # read JSON file
     dat = json.load(open(FILE, "r"))
     dat = [d for d in dat if d.get("sentence") is not None]
+    print(f"{len(dat)} sentence examples in file '{FILE}'")
     sentences = [d.get("sentence", "") for d in dat]
     biblio = [d.get("meta_source", "") for d in dat]
     scores = [classmap.get(d.get("class"), .5) for d in dat]
