@@ -25,6 +25,58 @@ The repository contains configurations of two databases.
     - The database can store **temporarily** *direkte personenbezogenen Daten* (DSGVO) for sole purpose of a non-commercial research project, e.g. user surveys with the informed consent that provided data can be published under CC-* license.
     - The application stores `user_id` permanently as *Pseudonym* (Art. 4 Nr. 5 DSGVO).
 
+## Demo Data 1: `./dbeval/demo1/`
+
+```sh
+cd $EVIDENCE_DEPLOY 
+cat database/dbauth/demo/test-user.sql | docker exec -i evidence_dbauth psql -U evidence -d evidence
+cat database/dbeval/demo/999-toy-data1.cql | docker exec -i evidence_dbeval cqlsh 
+```
+
+## Demo Data 2: `./dbeval/demo2/`
+(1) The folder contains `./dbauth/demo/*.dvc` files to download JSON data files from the ZDL SSH backend.
+Please install a python virtual env with DVC for SSH, and pull the JSON files from the backend.
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install 'dvc[ssh]'
+dvc pull -r zdl
+deactivate  # important!
+rm -rf .venv  # not needed anymore
+```
+
+(2) The following headwords with sentence examples are available: 
+
+- ADJ: blau, hell, regimefeindlich, schnell, technisch, witzig
+- NOUN: Gradient, Insel, Internet, Regen, Käse, Wüste
+- VERB: digitalisieren, fließen, pflegen, schmelzen, turnen, ziehen
+
+
+(3) Start Feature Extraction pipeline `evidence-features`
+
+Please install [evidence-features](github.com/satzbeleg/evidence-features) in the parent folder
+
+```sh
+cd ../
+pip install git+ssh://git@github.com/satzbeleg/evidence-features.git features
+cd features
+# follow the instructions in ../features/README.md (install .venv, download models)
+```
+
+(4) Process text data and insert into `dbeval` database
+
+```sh
+cd ./database
+source ../features/.venv/bin/activate
+export MODELFOLDER="../features/models"
+python ./dbeval/demo2/preprocess.py
+# check also how to fetch the data
+# ./dbeval/demo2/fetch-examples.py
+```
+
+
 ## Appendix
 
 ### Support
