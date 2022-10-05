@@ -1,0 +1,4 @@
+outs:
+- md5: 3442a3f84c12e0618c9cf52d84f48673
+  size: 42002
+  path: scores2-digitalisieren.json
