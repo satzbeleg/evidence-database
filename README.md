@@ -49,9 +49,9 @@ rm -rf .venv  # not needed anymore
 
 (2) The following headwords with sentence examples are available: 
 
-- ADJ: blau, hell, regimefeindlich, schnell, technisch, witzig
-- NOUN: Gradient, Insel, Internet, Regen, Käse, Wüste
-- VERB: digitalisieren, fließen, pflegen, schmelzen, turnen, ziehen
+- ADJ: *blau*, hell, ~~regimefeindlich~~, schnell, technisch, witzig
+- NOUN: Gradient, Insel, Internet, ~~Regen~~, *Käse*, Wüste
+- VERB: *digitalisieren*, fließen, pflegen, ~~schmelzen~~, turnen, ziehen
 
 
 (3) Start Feature Extraction pipeline `evidence-features`
