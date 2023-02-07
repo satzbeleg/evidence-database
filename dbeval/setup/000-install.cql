@@ -87,9 +87,9 @@ evidence.evaluated_bestworst (
 evidence.interactivity_convergence (
     episode_id  UUID
   -- recorded episode
-  , training_score_history  frozen<list<FLOAT>>  # real[] NOT NULL
-  , model_score_history     frozen<list<FLOAT>>  # real[] NOT NULL
-  , displayed               frozen<list<TINYINT>>  # boolean[] NOT NULL
+  , training_score_history  frozen<list<FLOAT>>  -- real[] NOT NULL
+  , model_score_history     frozen<list<FLOAT>>  -- real[] NOT NULL
+  , displayed               frozen<list<TINYINT>>  -- boolean[] NOT NULL
   -- documentation
   , user_id       UUID
   -- for lookups
